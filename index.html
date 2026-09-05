@@ -1,1 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absen Desa Kaltara</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Alpine.js untuk Logika Interaktif -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between" x-data="absenApp()">
 
+  <!-- HEADER -->
+  <header class="bg-slate-800/80 border-b border-slate-700 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-black bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent flex items-center gap-2">
+          <i class="fa-solid fa-mosque text-emerald-400"></i> ABSEN DESA KALTARA
+        </h1>
+        <!-- Tanggal, Bulan, Tahun Hari Ini -->
+        <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+          <i class="fa-regular fa-calendar-days text-emerald-400"></i>
+          <span x-text="currentDateFormatted"></span>
+        </p>
+      </div>
+
+      <!-- Mode Admin Toggle -->
+      <div class="flex items-center gap-2">
+        <template x-if="isAdmin">
+          <div class="flex items-center gap-2">
+            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1 rounded-full font-bold">
+              <i class="fa-solid fa-user-shield"></i> Mode Admin
+            </span>
+            <button @click="logoutAdmin()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+              Keluar Admin
+            </button>
+          </div>
+        </template>
+        <template x-if="!isAdmin">
+          <button @click="openLoginModal()" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-200 px-4 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+            <i class="fa-solid fa-lock text-emerald-400"></i> Login Admin
+          </button>
+        </template>
+      </div>
+    </div>
+  </header>
+
+  <!-- KONTEN UTAMA -->
+  <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow space-y-6">
+
+    <!-- TAB NAVIGASI -->
+    <div class="flex border-b border-slate-700 gap-2">
+      <button 
+        @click="activeTab = 'dashboard'" 
+        :class="activeTab === 'dashboard' ? 'border-emerald-500 text-emerald-400 bg-slate-800/50' : 'border-transparent text-slate-400 hover:text-slate-200'"
+        class="px-4 py-2.5 font-semibold text-sm border-b-2 rounded-t-lg transition flex items-center gap-2">
+        <i class="fa-solid fa-chart-pie"></i> Ringkasan & Dashboard
+      </button>
+      
+      <!-- Tab Pengisian Khusus Admin -->
+      <button 
+        x-show="isAdmin"
+        @click="activeTab = 'input'" 
+        :class="activeTab === 'input' ? 'border-emerald-500 text-emerald-400 bg-slate-800/50' : 'border-transparent text-slate-400 hover:text-slate-200'"
+        class="px-4 py-2.5 font-semibold text-sm border-b-2 rounded-t-lg transition flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square"></i> <span x-text="editIndex !== null ? 'Edit Data Absen' : 'Pengisian Data Absen'"></span>
+      </button>
+
+      <button 
+        @click="activeTab = 'history'" 
+        :class="activeTab === 'history' ? 'border-emerald-500 text-emerald-400 bg-slate-800/50' : 'border-transparent text-slate-400 hover:text-slate-200'"
+        class="px-4 py-2.5 font-semibold text-sm border-b-2 rounded-t-lg transition flex items-center gap-2">
+        <i class="fa-solid fa-clock-rotate-left"></i> Rekap / Riwayat Bulan Lalu
+      </button>
+    </div>
+
+    <!-- ==================== TAB 1: DASHBOARD UTAMA ==================== -->
+    <div x-show="activeTab === 'dashboard'" class="space-y-6">
+      
+      <!-- STATISTIK PERSENTASE PALING MENONJOL -->
+      <div class="bg-gradient-to-br from-emerald-950/70 via-slate-800 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 text-emerald-500/5 text-9xl font-black select-none pointer-events-none">
+          %
+        </div>
+        
+        <div class="text-center md:text-left md:flex md:items-center md:justify-between gap-6">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-900/50 px-3 py-1 rounded-full border border-emerald-700/50">
+              Tingkat Kehadiran Keseluruhan
+            </span>
+            <h2 class="text-2xl md:text-3xl font-extrabold mt-3 text-slate-100">
+              Persentase Kehadiran Anggota Aktif
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">
+              Dari Total Anggota Aktif: <span class="font-bold text-slate-200" x-text="totalAnggotaAktif"></span> Orang
+            </p>
+          </div>
+
+          <!-- PERSENTASE BESAR -->
+          <div class="mt-6 md:mt-0 flex flex-col items-center justify-center bg-slate-900/80 border border-emerald-500/40 px-8 py-6 rounded-2xl shadow-inner min-w-[200px]">
+            <span class="text-5xl md:text-6xl font-black text-emerald-400 tracking-tight" x-text="persentaseHadir + '%'">
+              0%
+            </span>
+            <span class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">Hadir Aktif</span>
+          </div>
+        </div>
+
+        <!-- STATS CARDS (H, I, A) -->
+        <div class="grid grid-cols-3 gap-3 md:gap-4 mt-8">
+          <div class="bg-slate-900/90 border border-emerald-500/20 p-4 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-semibold block uppercase">Hadir (H)</span>
+            <span class="text-2xl md:text-3xl font-extrabold text-emerald-400 mt-1 block" x-text="totalHadir">0</span>
+          </div>
+          <div class="bg-slate-900/90 border border-yellow-500/20 p-4 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-semibold block uppercase">Ijin (I)</span>
+            <span class="text-2xl md:text-3xl font-extrabold text-yellow-400 mt-1 block" x-text="totalIjin">0</span>
+          </div>
+          <div class="bg-slate-900/90 border border-red-500/20 p-4 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-semibold block uppercase">Alpha (A)</span>
+            <span class="text-2xl md:text-3xl font-extrabold text-red-400 mt-1 block" x-text="totalAlpha">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAIL PER GRUP KELOMPOK -->
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-users text-teal-400"></i> Detail Kehadiran Per Grup / Kelompok
+          </h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-slate-300">
+            <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 border-b border-slate-700">
+              <tr>
+                <th class="px-4 py-3">Jenis Pengajian</th>
+                <th class="px-4 py-3">Nama Grup / RT</th>
+                <th class="px-4 py-3 text-center text-emerald-400">H (Hadir)</th>
+                <th class="px-4 py-3 text-center text-yellow-400">I (Ijin)</th>
+                <th class="px-4 py-3 text-center text-red-400">A (Alpha)</th>
+                <th class="px-4 py-3 text-center">Total</th>
+                <th x-show="isAdmin" class="px-4 py-3 text-center">Aksi (Admin)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-700/50">
+              <template x-for="(item, index) in records" :key="index">
+                <tr class="hover:bg-slate-800/40 transition">
+                  <td class="px-4 py-3 font-semibold text-emerald-300" x-text="item.jenisPengajian"></td>
+                  <td class="px-4 py-3 text-slate-200" x-text="item.namaGrup"></td>
+                  <td class="px-4 py-3 text-center font-bold text-emerald-400" x-text="item.hadir"></td>
+                  <td class="px-4 py-3 text-center font-bold text-yellow-400" x-text="item.ijin"></td>
+                  <td class="px-4 py-3 text-center font-bold text-red-400" x-text="item.alpha"></td>
+                  <td class="px-4 py-3 text-center font-bold text-slate-100" x-text="Number(item.hadir) + Number(item.ijin) + Number(item.alpha)"></td>
+                  <td x-show="isAdmin" class="px-4 py-3 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <button @click="editRecord(index)" class="text-indigo-400 hover:text-indigo-300 p-1.5 rounded-lg bg-indigo-950/50 border border-indigo-800/50">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button @click="deleteRecord(index)" class="text-red-400 hover:text-red-300 p-1.5 rounded-lg bg-red-950/50 border border-red-800/50">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+              <tr x-show="records.length === 0">
+                <td :colspan="isAdmin ? 7 : 6" class="text-center py-6 text-slate-500">
+                  Belum ada data kehadiran terdaftar. <span x-show="isAdmin">Silakan isi di tab Pengisian Data.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: PENGISIAN DATA (KHUSUS ADMIN) ==================== -->
+    <div x-show="activeTab === 'input' && isAdmin" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 max-w-2xl mx-auto shadow-xl">
+      <h3 class="text-xl font-bold text-emerald-400 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square"></i> <span x-text="editIndex !== null ? 'Edit Data Kehadiran' : 'Input Data Kehadiran Baru'"></span>
+      </h3>
+
+      <form @submit.prevent="saveRecord()" class="space-y-4">
+        <!-- Input Total Anggota Aktif Desa -->
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-emerald-500/30">
+          <label class="block text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
+            Total Anggota Aktif Desa (Persentase Base)
+          </label>
+          <input 
+            type="number" 
+            x-model="totalAnggotaAktif" 
+            placeholder="Masukkan total anggota aktif..."
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm font-semibold"
+            required
+          >
+        </div>
+
+        <!-- Choice Jenis Pengajian -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Jenis Pengajian</label>
+          <select 
+            x-model="formData.jenisSelect" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+            required
+          >
+            <option value="">-- Pilih Jenis Pengajian --</option>
+            <option value="Pengajian Umum Desa">Pengajian Umum Desa</option>
+            <option value="Ibu Ibu Desa">Ibu Ibu Desa</option>
+            <option value="Remaja Desa">Remaja Desa</option>
+            <option value="Lainnya">Lainnya (Input Khusus Admin)</option>
+          </select>
+        </div>
+
+        <!-- Input Khusus "Lainnya" -->
+        <div x-show="formData.jenisSelect === 'Lainnya'">
+          <label class="block text-xs font-semibold text-emerald-400 mb-1">Nama Pengajian Kustom (Khusus Admin)</label>
+          <input 
+            type="text" 
+            x-model="formData.jenisCustom" 
+            placeholder="Tuliskan nama pengajian lainnya..."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+          >
+        </div>
+
+        <!-- Nama Grup / Peserta -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Grup / Kelompok Peserta</label>
+          <input 
+            type="text" 
+            x-model="formData.namaGrup" 
+            placeholder="Misal: Kelompok RT 01, Remaja Blok A..." 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+            required
+          >
+        </div>
+
+        <!-- Input H, I, A -->
+        <div class="grid grid-cols-3 gap-3 pt-2">
+          <div>
+            <label class="block text-xs font-bold text-emerald-400 mb-1">H (Hadir)</label>
+            <input 
+              type="number" 
+              min="0" 
+              x-model="formData.hadir" 
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-center text-slate-100 font-bold focus:outline-none focus:border-emerald-500 text-sm"
+              required
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-yellow-400 mb-1">I (Ijin)</label>
+            <input 
+              type="number" 
+              min="0" 
+              x-model="formData.ijin" 
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-center text-slate-100 font-bold focus:outline-none focus:border-yellow-500 text-sm"
+              required
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-red-400 mb-1">A (Alpha)</label>
+            <input 
+              type="number" 
+              min="0" 
+              x-model="formData.alpha" 
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-center text-slate-100 font-bold focus:outline-none focus:border-red-500 text-sm"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Tanggal Record -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Kegiatan</label>
+          <input 
+            type="date" 
+            x-model="formData.tanggal" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+            required
+          >
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 flex gap-3">
+          <button 
+            type="submit" 
+            class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span x-text="editIndex !== null ? 'Simpan Perubahan' : 'Tambah Data'"></span>
+          </button>
+          <button 
+            type="button" 
+            x-show="editIndex !== null"
+            @click="resetForm()" 
+            class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold px-4 py-3 rounded-xl transition">
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ==================== TAB 3: RIWAYAT / REKAP BULAN LALU ==================== -->
+    <div x-show="activeTab === 'history'" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+      <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-box-archive text-emerald-400"></i> Rekapitualasi Bulan Sebelumnya
+        </h3>
+        
+        <!-- Filter Bulan/Tahun -->
+        <div class="flex gap-2">
+          <input 
+            type="month" 
+            x-model="filterMonth" 
+            class="bg-slate-900 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
+          >
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-300">
+          <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 border-b border-slate-700">
+            <tr>
+              <th class="px-4 py-3">Tanggal</th>
+              <th class="px-4 py-3">Jenis Pengajian</th>
+              <th class="px-4 py-3">Grup</th>
+              <th class="px-4 py-3 text-center text-emerald-400">H</th>
+              <th class="px-4 py-3 text-center text-yellow-400">I</th>
+              <th class="px-4 py-3 text-center text-red-400">A</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/50">
+            <template x-for="(item, index) in filteredHistoryRecords" :key="index">
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 text-slate-400 text-xs" x-text="formatTanggal(item.tanggal)"></td>
+                <td class="px-4 py-3 font-medium text-emerald-300" x-text="item.jenisPengajian"></td>
+                <td class="px-4 py-3" x-text="item.namaGrup"></td>
+                <td class="px-4 py-3 text-center font-bold text-emerald-400" x-text="item.hadir"></td>
+                <td class="px-4 py-3 text-center font-bold text-yellow-400" x-text="item.ijin"></td>
+                <td class="px-4 py-3 text-center font-bold text-red-400" x-text="item.alpha"></td>
+              </tr>
+            </template>
+            <tr x-show="filteredHistoryRecords.length === 0">
+              <td colspan="6" class="text-center py-6 text-slate-500">
+                Tidak ada riwayat record data untuk periode bulan ini.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL LOGIN ADMIN -->
+  <div x-show="showLoginModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50" style="display: none;">
+    <div @click.away="showLoginModal = false" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <h3 class="text-xl font-bold text-slate-100 mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-lock text-emerald-400"></i> Login khusus Admin
+      </h3>
+      <p class="text-xs text-slate-400 mb-4">Masukkan kata sandi admin untuk mengakses menu pengisian data, edit, dan hapus.</p>
+      
+      <form @submit.prevent="loginAdmin()">
+        <input 
+          type="password" 
+          x-model="adminPassword" 
+          placeholder="Password admin (Default: admin123)" 
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm mb-4"
+          required
+        >
+        <div class="flex justify-end gap-2">
+          <button type="button" @click="showLoginModal = false" class="px-4 py-2 text-slate-400 hover:text-slate-200 text-sm font-semibold">Batal</button>
+          <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2 rounded-xl text-sm transition">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-4 text-center text-slate-500 text-xs">
+    <p>&copy; Absen Desa Kaltara - Sistem Kehadiran Pengajian Desa</p>
+  </footer>
+
+  <!-- SCRIPT KONTROL LOGIKA APP -->
+  <script>
+    function absenApp() {
+      return {
+        activeTab: 'dashboard',
+        isAdmin: false,
+        showLoginModal: false,
+        adminPassword: '',
+        editIndex: null,
+        totalAnggotaAktif: 100, // Default base anggota aktif
+        filterMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
+        
+        // Form Data Input
+        formData: {
+          jenisSelect: '',
+          jenisCustom: '',
+          namaGrup: '',
+          hadir: 0,
+          ijin: 0,
+          alpha: 0,
+          tanggal: new Date().toISOString().slice(0, 10)
+        },
+
+        // Sample Data Awal (Disimpan di LocalStorage)
+        records: JSON.parse(localStorage.getItem('absen_kaltara_data')) || [
+          { jenisPengajian: 'Pengajian Umum Desa', namaGrup: 'Grup RT 01', hadir: 25, ijin: 2, alpha: 1, tanggal: new Date().toISOString().slice(0, 10) },
+          { jenisPengajian: 'Ibu Ibu Desa', namaGrup: 'Keluarga Sakinah', hadir: 30, ijin: 5, alpha: 0, tanggal: new Date().toISOString().slice(0, 10) },
+          { jenisPengajian: 'Remaja Desa', namaGrup: 'Risma Kaltara', hadir: 20, ijin: 1, alpha: 3, tanggal: new Date().toISOString().slice(0, 10) }
+        ],
+
+        init() {
+          // Sync totalAnggotaAktif jika ada di storage
+          const savedTotal = localStorage.getItem('absen_kaltara_total');
+          if(savedTotal) this.totalAnggotaAktif = Number(savedTotal);
+          this.$watch('totalAnggotaAktif', val => localStorage.setItem('absen_kaltara_total', val));
+          this.$watch('records', val => localStorage.setItem('absen_kaltara_data', JSON.stringify(val)));
+        },
+
+        // Tanggal Hari Ini Formatted
+        get currentDateFormatted() {
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          return new Date().toLocaleDateString('id-ID', options);
+        },
+
+        // Perhitungan Total
+        get totalHadir() {
+          return this.records.reduce((sum, item) => sum + Number(item.hadir), 0);
+        },
+        get totalIjin() {
+          return this.records.reduce((sum, item) => sum + Number(item.ijin), 0);
+        },
+        get totalAlpha() {
+          return this.records.reduce((sum, item) => sum + Number(item.alpha), 0);
+        },
+        get persentaseHadir() {
+          if (!this.totalAnggotaAktif || this.totalAnggotaAktif <= 0) return 0;
+          const pct = (this.totalHadir / this.totalAnggotaAktif) * 100;
+          return pct.toFixed(1);
+        },
+
+        // Filter Record Berdasarkan Bulan
+        get filteredHistoryRecords() {
+          if (!this.filterMonth) return this.records;
+          return this.records.filter(r => r.tanggal.startsWith(this.filterMonth));
+        },
+
+        // Simpan / Update Record
+        saveRecord() {
+          const jenisFinal = this.formData.jenisSelect === 'Lainnya' 
+            ? this.formData.jenisCustom 
+            : this.formData.jenisSelect;
+
+          const newRecord = {
+            jenisPengajian: jenisFinal,
+            namaGrup: this.formData.namaGrup,
+            hadir: Number(this.formData.hadir),
+            ijin: Number(this.formData.ijin),
+            alpha: Number(this.formData.alpha),
+            tanggal: this.formData.tanggal
+          };
+
+          if (this.editIndex !== null) {
+            this.records[this.editIndex] = newRecord;
+            this.editIndex = null;
+          } else {
+            this.records.push(newRecord);
+          }
+
+          this.resetForm();
+          this.activeTab = 'dashboard';
+        },
+
+        // Edit Data
+        editRecord(index) {
+          const item = this.records[index];
+          this.editIndex = index;
+          const standardJenis = ['Pengajian Umum Desa', 'Ibu Ibu Desa', 'Remaja Desa'];
+          
+          if (standardJenis.includes(item.jenisPengajian)) {
+            this.formData.jenisSelect = item.jenisPengajian;
+            this.formData.jenisCustom = '';
+          } else {
+            this.formData.jenisSelect = 'Lainnya';
+            this.formData.jenisCustom = item.jenisPengajian;
+          }
+
+          this.formData.namaGrup = item.namaGrup;
+          this.formData.hadir = item.hadir;
+          this.formData.ijin = item.ijin;
+          this.formData.alpha = item.alpha;
+          this.formData.tanggal = item.tanggal;
+
+          this.activeTab = 'input';
+        },
+
+        // Hapus Data
+        deleteRecord(index) {
+          if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+            this.records.splice(index, 1);
+          }
+        },
+
+        resetForm() {
+          this.editIndex = null;
+          this.formData = {
+            jenisSelect: '',
+            jenisCustom: '',
+            namaGrup: '',
+            hadir: 0,
+            ijin: 0,
+            alpha: 0,
+            tanggal: new Date().toISOString().slice(0, 10)
+          };
+        },
+
+        // Login Admin
+        openLoginModal() {
+          this.showLoginModal = true;
+        },
+        loginAdmin() {
+          // Kata sandi admin sederhana
+          if (this.adminPassword === 'admin123') {
+            this.isAdmin = true;
+            this.showLoginModal = false;
+            this.adminPassword = '';
+          } else {
+            alert('Password Admin Salah! Gunakan: admin123');
+          }
+        },
+        logoutAdmin() {
+          this.isAdmin = false;
+          this.activeTab = 'dashboard';
+        },
+
+        formatTanggal(dateStr) {
+          if(!dateStr) return '-';
+          const d = new Date(dateStr);
+          return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+      }
+    }
+  </script>
+</body>
+</html>
