@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi Pengajian Per Event</title>
+    <title>ABSENSI KALTARA</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -14,123 +14,206 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-8 min-h-screen">
+<body class="bg-slate-100 text-slate-800 p-3 md:p-6 min-h-screen">
 
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6 md:p-8 container-box">
+    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-4 md:p-8 container-box">
         
-        <!-- Header -->
+        <!-- Header Utama -->
         <div class="text-center border-b pb-4 mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-emerald-700">Sistem Absensi Pengajian</h1>
-            <p class="text-sm text-slate-500 mt-1">Rekapitulasi Kehadiran Kelompok Per Event / Acara</p>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-emerald-700 tracking-wide">ABSENSI KALTARA</h1>
+            <p class="text-xs md:text-sm text-slate-500 mt-1">Sistem Rekapitulasi & Monitoring Kehadiran Pengajian</p>
         </div>
 
-        <!-- Dashboard Ringkasan Utama (Besar & Menonjol) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Card Total Anggota -->
-            <div class="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
-                <span class="text-xs uppercase tracking-wider font-semibold opacity-80">Total Target Anggota</span>
-                <span class="text-4xl md:text-5xl font-extrabold mt-1">1030</span>
-                <span class="text-xs opacity-75 mt-1">Jamaah Terdaftar</span>
-            </div>
-
-            <!-- Card Total Hadir -->
-            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
-                <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Total Hadir Event Ini</span>
-                <span id="displayTotalHadir" class="text-4xl md:text-5xl font-extrabold mt-1">0</span>
-                <span class="text-xs opacity-80 mt-1">Jamaah Hadir</span>
-            </div>
-
-            <!-- Card Persentase Kehadiran -->
-            <div class="bg-gradient-to-br from-teal-600 to-cyan-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center border-2 border-teal-400">
-                <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Persentase Kehadiran</span>
-                <span id="displayPersentase" class="text-4xl md:text-5xl font-extrabold mt-1">0%</span>
-                <span class="text-xs opacity-80 mt-1">dari 1030 Anggota</span>
-            </div>
+        <!-- Tab Navigasi Utama -->
+        <div class="flex border-b border-slate-200 mb-6 no-print">
+            <button id="btnTabDashboard" onclick="switchTab('dashboard')" class="flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition">
+                📊 Dashboard & Rekap
+            </button>
+            <button id="btnTabInput" onclick="switchTab('input')" class="flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition">
+                🔒 Input Absensi (Khusus Admin)
+            </button>
         </div>
 
-        <!-- Form Event Header -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6 no-print">
-            <div>
-                <label for="jenisEvent" class="block text-xs font-semibold text-slate-600 mb-1">Jenis Event / Pengajian</label>
-                <select id="jenisEvent" onchange="updateEventTitle()" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    <option value="Pengajian Umum Desa">Pengajian Umum Desa</option>
-                    <option value="Pengajian Remaja">Pengajian Remaja</option>
-                    <option value="Pengajian Ibu-Ibu">Pengajian Ibu-Ibu</option>
-                    <option value="Pengajian Bapak-Bapak">Pengajian Bapak-Bapak</option>
-                    <option value="Pengajian Rutin Pekanan">Pengajian Rutin Pekanan</option>
-                </select>
+        <!-- ==================== TAB 1: DASHBOARD & REKAP (UMUM) ==================== -->
+        <div id="tabDashboard" class="space-y-6">
+            
+            <!-- Dashboard Ringkasan Utama -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Card Total Anggota -->
+                <div class="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
+                    <span class="text-xs uppercase tracking-wider font-semibold opacity-80">Total Target Anggota</span>
+                    <span class="text-4xl md:text-5xl font-extrabold mt-1">1030</span>
+                    <span class="text-xs opacity-75 mt-1">Jamaah Kaltara</span>
+                </div>
+
+                <!-- Card Total Hadir Terbaru -->
+                <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
+                    <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Total Hadir (Event Terakhir)</span>
+                    <span id="dashTotalHadir" class="text-4xl md:text-5xl font-extrabold mt-1">0</span>
+                    <span id="dashEventTitle" class="text-xs opacity-90 mt-1 truncate max-w-full px-2">Belum ada data</span>
+                </div>
+
+                <!-- Card Persentase Kehadiran -->
+                <div class="bg-gradient-to-br from-teal-600 to-cyan-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center border-2 border-teal-400">
+                    <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Persentase Kehadiran</span>
+                    <span id="dashPersentase" class="text-4xl md:text-5xl font-extrabold mt-1">0%</span>
+                    <span class="text-xs opacity-80 mt-1">dari 1030 Anggota</span>
+                </div>
             </div>
-            <div>
-                <label for="tanggalEvent" class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Event</label>
-                <input type="date" id="tanggalEvent" onchange="updateHeaderSummary()" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+
+            <!-- Filter Bulan / Tahun untuk Melihat Data Lama -->
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 no-print">
+                <div class="font-bold text-slate-700 text-sm">
+                    📁 Arsip Data Bulan Sebelumnya
+                </div>
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <input type="month" id="filterBulan" onchange="filterDataBulan()" class="p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 outline-none w-full md:w-auto">
+                    <button onclick="resetFilter()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-3 py-2 rounded-md font-semibold transition">
+                        Reset
+                    </button>
+                </div>
             </div>
-            <div>
-                <label for="lokasiEvent" class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
-                <input type="text" id="lokasiEvent" oninput="updateHeaderSummary()" placeholder="Contoh: Masjid Al-Ikhlas" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+
+            <!-- Tabel Tampilan Rekap Data Event Terpilih/Terbaru -->
+            <div class="border rounded-xl p-4 bg-white shadow-sm">
+                <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-4 gap-2">
+                    <h3 id="viewEventTitle" class="font-bold text-emerald-800 text-lg">Detail Rekap Event Terbaru</h3>
+                    <span id="viewEventMeta" class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-medium">Tanggal: - | Lokasi: -</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-center border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                                <th class="p-2.5 w-12">No</th>
+                                <th class="p-2.5 text-left">Nama Kelompok</th>
+                                <th class="p-2.5">Hadir</th>
+                                <th class="p-2.5">Izin</th>
+                                <th class="p-2.5">Alpha</th>
+                                <th class="p-2.5 font-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashTableBody" class="divide-y divide-slate-200">
+                            <!-- Detail data di-render dari JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
+                                <td colspan="2" class="p-2.5 text-left">TOTAL KESELURUHAN</td>
+                                <td id="dashFooterHadir" class="p-2.5">0</td>
+                                <td id="dashFooterIzin" class="p-2.5">0</td>
+                                <td id="dashFooterAlpha" class="p-2.5">0</td>
+                                <td id="dashFooterTotal" class="p-2.5 font-extrabold text-emerald-950">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="mt-4 text-right no-print">
+                    <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition">
+                        🖨️ Cetak / Simpan PDF
+                    </button>
+                </div>
             </div>
+
+            <!-- Daftar Riwayat Event -->
+            <div class="border rounded-xl p-4 bg-white shadow-sm no-print">
+                <h3 class="font-bold text-slate-700 text-md mb-3">Daftar Riwayat Pengajian</h3>
+                <div id="historyList" class="space-y-2 text-xs">
+                    <p class="italic text-slate-400">Belum ada data tersimpan.</p>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Ringkasan Tampilan Cetak/Aktif -->
-        <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-md flex flex-wrap justify-between items-center text-sm font-semibold">
-            <span id="activeEventBadge">Event: Pengajian Umum Desa</span>
-            <span id="activeMetaBadge">Tanggal: - | Lokasi: -</span>
-        </div>
+        <!-- ==================== TAB 2: INPUT ABSENSI (KHUSUS ADMIN) ==================== -->
+        <div id="tabInput" class="hidden space-y-6">
 
-        <!-- Tabel Absensi 8 Kelompok -->
-        <form id="attendanceForm" onsubmit="event.preventDefault();">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-center border-collapse">
-                    <thead>
-                        <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
-                            <th class="p-3 w-12">No</th>
-                            <th class="p-3 text-left">Nama Kelompok</th>
-                            <th class="p-3 w-20 md:w-24">Hadir</th>
-                            <th class="p-3 w-20 md:w-24">Izin</th>
-                            <th class="p-3 w-20 md:w-24">Alpha</th>
-                            <th class="p-3 w-20 md:w-24 font-bold">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="absensiBody" class="divide-y divide-slate-200">
-                        <!-- Data kelompok akan di-render otomatis -->
-                    </tbody>
-                    <tfoot>
-                        <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
-                            <td colspan="2" class="p-3 text-left">TOTAL KESELURUHAN</td>
-                            <td id="totalHadir" class="p-3">0</td>
-                            <td id="totalIzin" class="p-3">0</td>
-                            <td id="totalAlpha" class="p-3">0</td>
-                            <td id="totalSemua" class="p-3 text-emerald-950 font-extrabold">0</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
-            <!-- Tombol Aksi -->
-            <div class="mt-6 flex flex-col md:flex-row gap-3 no-print">
-                <button type="button" onclick="simpanAbsensi()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition">
-                    💾 Simpan Data
+            <!-- Modal / Form Verifikasi PIN Admin -->
+            <div id="adminAuthBox" class="bg-slate-50 border border-slate-200 p-6 rounded-xl max-w-md mx-auto text-center space-y-4">
+                <div class="text-3xl">🔑</div>
+                <h2 class="font-bold text-lg text-slate-800">Verifikasi Admin</h2>
+                <p class="text-xs text-slate-500">Masukkan PIN Admin untuk membuka form pengisian absensi.</p>
+                <input type="password" id="inputPin" placeholder="Masukkan PIN (Default: 1234)" class="w-full p-2.5 text-center text-lg border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                <button onclick="verifyAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-md transition">
+                    Masuk Sebagai Admin
                 </button>
-                <button type="button" onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition">
-                    🖨️ Cetak / Simpan PDF
-                </button>
             </div>
-        </form>
 
-        <!-- Riwayat Singkat Simpan (LocalStorage) -->
-        <div class="mt-8 no-print border-t pt-4">
-            <h2 class="text-md font-bold text-slate-700 mb-2">Riwayat Tersimpan di Browser</h2>
-            <div id="historyContainer" class="text-xs text-slate-600 space-y-1">
-                <p class="italic text-slate-400">Belum ada data yang disimpan.</p>
+            <!-- Form Input Absensi (Awalnya Tersembunyi) -->
+            <div id="adminFormContent" class="hidden space-y-6">
+                
+                <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                    <span class="text-xs font-bold text-emerald-800">✅ Mode Admin Aktif</span>
+                    <button onclick="logoutAdmin()" class="text-xs text-red-600 hover:underline font-semibold">Kunci Kembali</button>
+                </div>
+
+                <!-- Form Event Header -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div>
+                        <label for="jenisEvent" class="block text-xs font-semibold text-slate-600 mb-1">Jenis Event / Pengajian</label>
+                        <select id="jenisEvent" onchange="updateAdminSummary()" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="Pengajian Umum Desa">Pengajian Umum Desa</option>
+                            <option value="Pengajian Remaja">Pengajian Remaja</option>
+                            <option value="Pengajian Ibu-Ibu">Pengajian Ibu-Ibu</option>
+                            <option value="Pengajian Bapak-Bapak">Pengajian Bapak-Bapak</option>
+                            <option value="Pengajian Rutin Pekanan">Pengajian Rutin Pekanan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tanggalEvent" class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Event</label>
+                        <input type="date" id="tanggalEvent" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label for="lokasiEvent" class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
+                        <input type="text" id="lokasiEvent" placeholder="Contoh: Masjid Al-Ikhlas" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Tabel Input Absensi 8 Kelompok -->
+                <form id="attendanceForm" onsubmit="event.preventDefault();">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-center border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                                    <th class="p-3 w-12">No</th>
+                                    <th class="p-3 text-left">Nama Kelompok</th>
+                                    <th class="p-3 w-20 md:w-24">Hadir</th>
+                                    <th class="p-3 w-20 md:w-24">Izin</th>
+                                    <th class="p-3 w-20 md:w-24">Alpha</th>
+                                    <th class="p-3 w-20 md:w-24 font-bold">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inputTableBody" class="divide-y divide-slate-200">
+                                <!-- Form input kelompok -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
+                                    <td colspan="2" class="p-3 text-left">TOTAL KESELURUHAN</td>
+                                    <td id="inputTotalHadir" class="p-3">0</td>
+                                    <td id="inputTotalIzin" class="p-3">0</td>
+                                    <td id="inputTotalAlpha" class="p-3">0</td>
+                                    <td id="inputTotalSemua" class="p-3 text-emerald-950 font-extrabold">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <button type="button" onclick="simpanAbsensi()" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-lg shadow transition text-base">
+                        💾 Simpan Data Absensi Event Ini
+                    </button>
+                </form>
+
             </div>
+
         </div>
 
     </div>
 
     <script>
-        // Target Jumlah Anggota Keseluruhan
         const TOTAL_ANGGOTA = 1030;
+        const ADMIN_PIN = "1234"; // PIN bawaan Admin (dapat diubah sesuai kebutuhan)
+        let isAdminLoggedIn = false;
 
-        // 8 Kelompok Tetap
         const daftarKelompok = [
             "Kel. CEPOGO",
             "Kel. SEKUWUNG",
@@ -142,12 +225,52 @@
             "Kel. Plombokan"
         ];
 
-        // Inisialisasi Tanggal Hari Ini
         document.getElementById('tanggalEvent').valueAsDate = new Date();
 
-        // Render Tabel Absensi
-        function renderTable() {
-            const tbody = document.getElementById('absensiBody');
+        // Navigasi Tab
+        function switchTab(tab) {
+            const btnDash = document.getElementById('btnTabDashboard');
+            const btnInput = document.getElementById('btnTabInput');
+            const tabDash = document.getElementById('tabDashboard');
+            const tabInp = document.getElementById('tabInput');
+
+            if (tab === 'dashboard') {
+                tabDash.classList.remove('hidden');
+                tabInp.classList.add('hidden');
+                btnDash.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition";
+                btnInput.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition";
+                loadDashboardData();
+            } else {
+                tabDash.classList.add('hidden');
+                tabInp.classList.remove('hidden');
+                btnInput.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition";
+                btnDash.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition";
+            }
+        }
+
+        // Verifikasi PIN Admin
+        function verifyAdmin() {
+            const pin = document.getElementById('inputPin').value;
+            if (pin === ADMIN_PIN) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminAuthBox').classList.add('hidden');
+                document.getElementById('adminFormContent').classList.remove('hidden');
+                renderInputTable();
+            } else {
+                alert("PIN Salah! Silakan coba lagi.");
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('inputPin').value = '';
+            document.getElementById('adminAuthBox').classList.remove('hidden');
+            document.getElementById('adminFormContent').classList.add('hidden');
+        }
+
+        // Render Form Input
+        function renderInputTable() {
+            const tbody = document.getElementById('inputTableBody');
             tbody.innerHTML = '';
 
             daftarKelompok.forEach((kelompok, index) => {
@@ -156,33 +279,19 @@
                 row.innerHTML = `
                     <td class="p-2 text-slate-500">${index + 1}</td>
                     <td class="p-2 text-left font-medium text-emerald-800">${kelompok}</td>
-                    <td class="p-2"><input type="number" min="0" value="0" class="input-hadir w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500" onchange="hitungTotal()" oninput="hitungTotal()"></td>
-                    <td class="p-2"><input type="number" min="0" value="0" class="input-izin w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500" onchange="hitungTotal()" oninput="hitungTotal()"></td>
-                    <td class="p-2"><input type="number" min="0" value="0" class="input-alpha w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500" onchange="hitungTotal()" oninput="hitungTotal()"></td>
+                    <td class="p-2"><input type="number" min="0" value="0" class="input-hadir w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none" oninput="hitungInputTotal()"></td>
+                    <td class="p-2"><input type="number" min="0" value="0" class="input-izin w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none" oninput="hitungInputTotal()"></td>
+                    <td class="p-2"><input type="number" min="0" value="0" class="input-alpha w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none" oninput="hitungInputTotal()"></td>
                     <td class="p-2 row-total font-semibold text-slate-700">0</td>
                 `;
                 tbody.appendChild(row);
             });
-            updateHeaderSummary();
-            tampilkanRiwayat();
+            hitungInputTotal();
         }
 
-        // Update Label
-        function updateEventTitle() {
-            const eventVal = document.getElementById('jenisEvent').value;
-            document.getElementById('activeEventBadge').innerText = "Event: " + eventVal;
-        }
-
-        function updateHeaderSummary() {
-            updateEventTitle();
-            const tgl = document.getElementById('tanggalEvent').value || '-';
-            const lok = document.getElementById('lokasiEvent').value || '-';
-            document.getElementById('activeMetaBadge').innerText = `Tanggal: ${tgl} | Lokasi: ${lok}`;
-        }
-
-        // Kalkulasi Otomatis & Persentase Kehadiran
-        function hitungTotal() {
-            const rows = document.querySelectorAll('#absensiBody tr');
+        // Kalkulasi Input Admin
+        function hitungInputTotal() {
+            const rows = document.querySelectorAll('#inputTableBody tr');
             let grandHadir = 0, grandIzin = 0, grandAlpha = 0, grandTotal = 0;
 
             rows.forEach(row => {
@@ -199,30 +308,22 @@
                 grandTotal += totalBaris;
             });
 
-            // Update Tabel Footer
-            document.getElementById('totalHadir').innerText = grandHadir;
-            document.getElementById('totalIzin').innerText = grandIzin;
-            document.getElementById('totalAlpha').innerText = grandAlpha;
-            document.getElementById('totalSemua').innerText = grandTotal;
-
-            // Update Dashboard Utama (Besar & Menonjol)
-            document.getElementById('displayTotalHadir').innerText = grandHadir;
-            
-            // Hitung Persentase Kehadiran terhadap Total 1030 Anggota
-            const persentase = ((grandHadir / TOTAL_ANGGOTA) * 100).toFixed(1);
-            document.getElementById('displayPersentase').innerText = persentase + '%';
+            document.getElementById('inputTotalHadir').innerText = grandHadir;
+            document.getElementById('inputTotalIzin').innerText = grandIzin;
+            document.getElementById('inputTotalAlpha').innerText = grandAlpha;
+            document.getElementById('inputTotalSemua').innerText = grandTotal;
         }
 
-        // Simpan ke LocalStorage
+        // Simpan Data oleh Admin
         function simpanAbsensi() {
             const jenisEvent = document.getElementById('jenisEvent').value;
             const tanggal = document.getElementById('tanggalEvent').value;
             const lokasi = document.getElementById('lokasiEvent').value;
-            const totalHadir = document.getElementById('totalHadir').innerText;
-            const persentase = document.getElementById('displayPersentase').innerText;
+            const totalHadir = parseInt(document.getElementById('inputTotalHadir').innerText) || 0;
+            const persentase = ((totalHadir / TOTAL_ANGGOTA) * 100).toFixed(1) + '%';
 
             const rekap = [];
-            document.querySelectorAll('#absensiBody tr').forEach((row, index) => {
+            document.querySelectorAll('#inputTableBody tr').forEach((row, index) => {
                 rekap.push({
                     kelompok: daftarKelompok[index],
                     hadir: parseInt(row.querySelector('.input-hadir').value) || 0,
@@ -237,44 +338,112 @@
                 tanggal: tanggal,
                 lokasi: lokasi,
                 totalHadir: totalHadir,
+                totalIzin: parseInt(document.getElementById('inputTotalIzin').innerText) || 0,
+                totalAlpha: parseInt(document.getElementById('inputTotalAlpha').innerText) || 0,
+                totalSemua: parseInt(document.getElementById('inputTotalSemua').innerText) || 0,
                 persentase: persentase,
                 detail: rekap
             };
 
-            let history = JSON.parse(localStorage.getItem('absensi_pengajian')) || [];
+            let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
             history.unshift(dataSubmit);
-            localStorage.setItem('absensi_pengajian', JSON.stringify(history));
+            localStorage.setItem('absensi_kaltara', JSON.stringify(history));
 
             alert(`Absensi '${jenisEvent}' berhasil disimpan! Kehadiran: ${persentase}`);
-            tampilkanRiwayat();
+            switchTab('dashboard');
         }
 
-        // Tampilkan Riwayat
-        function tampilkanRiwayat() {
-            const historyContainer = document.getElementById('historyContainer');
-            let history = JSON.parse(localStorage.getItem('absensi_pengajian')) || [];
+        // Load & Filter Data di Dashboard
+        function loadDashboardData(filteredData = null) {
+            let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
+            let displayData = filteredData ? filteredData : history;
+
+            const tbody = document.getElementById('dashTableBody');
+            const historyList = document.getElementById('historyList');
 
             if (history.length === 0) {
-                historyContainer.innerHTML = '<p class="italic text-slate-400">Belum ada data yang disimpan.</p>';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-slate-400 italic">Belum ada data absensi tersimpan. Silakan login admin untuk menambah data.</td></tr>';
                 return;
             }
 
-            historyContainer.innerHTML = history.slice(0, 5).map(item => `
-                <div class="p-2 bg-slate-50 border rounded flex justify-between items-center">
+            // Tampilkan data event paling baru / terpilih
+            const latest = displayData.length > 0 ? displayData[0] : history[0];
+            
+            document.getElementById('dashTotalHadir').innerText = latest.totalHadir;
+            document.getElementById('dashEventTitle').innerText = latest.event;
+            document.getElementById('dashPersentase').innerText = latest.persentase;
+
+            document.getElementById('viewEventTitle').innerText = latest.event;
+            document.getElementById('viewEventMeta').innerText = `Tanggal: ${latest.tanggal || '-'} | Lokasi: ${latest.lokasi || '-'}`;
+
+            // Render Detail Tabel Event Terpilih
+            tbody.innerHTML = '';
+            latest.detail.forEach((item, index) => {
+                const totalBaris = item.hadir + item.izin + item.alpha;
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50";
+                row.innerHTML = `
+                    <td class="p-2.5 text-slate-500">${index + 1}</td>
+                    <td class="p-2.5 text-left font-medium text-emerald-800">${item.kelompok}</td>
+                    <td class="p-2.5 font-semibold text-slate-700">${item.hadir}</td>
+                    <td class="p-2.5 text-slate-600">${item.izin}</td>
+                    <td class="p-2.5 text-slate-600">${item.alpha}</td>
+                    <td class="p-2.5 font-bold text-slate-800">${totalBaris}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('dashFooterHadir').innerText = latest.totalHadir;
+            document.getElementById('dashFooterIzin').innerText = latest.totalIzin;
+            document.getElementById('dashFooterAlpha').innerText = latest.totalAlpha;
+            document.getElementById('dashFooterTotal').innerText = latest.totalSemua;
+
+            // Render Daftar Riwayat
+            historyList.innerHTML = history.map((item, idx) => `
+                <div class="p-3 bg-slate-50 hover:bg-emerald-50 border rounded-lg flex justify-between items-center cursor-pointer transition" onclick="selectHistoryItem(${idx})">
                     <div>
-                        <span class="font-bold text-emerald-700">${item.event}</span> (${item.tanggal}) 
-                        <span class="text-slate-500">- ${item.lokasi || 'Tanpa Lokasi'}</span>
+                        <span class="font-bold text-emerald-700">${item.event}</span> 
+                        <span class="text-slate-500">(${item.tanggal})</span>
+                        <div class="text-slate-400 text-[11px]">${item.lokasi || 'Tanpa Lokasi'}</div>
                     </div>
-                    <div class="space-x-1">
-                        <span class="font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs">Hadir: ${item.totalHadir}</span>
-                        <span class="font-semibold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded text-xs">${item.persentase || '0%'}</span>
+                    <div class="text-right">
+                        <span class="font-bold text-slate-700">${item.totalHadir} Hadir</span>
+                        <span class="ml-2 font-semibold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded text-[10px]">${item.persentase}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Jalankan saat halaman dimuat
-        renderTable();
+        // Pilih item riwayat untuk dilihat di tabel
+        function selectHistoryItem(index) {
+            let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
+            if (history[index]) {
+                loadDashboardData([history[index]]);
+            }
+        }
+
+        // Filter Data Berdasarkan Bulan & Tahun
+        function filterDataBulan() {
+            const filterValue = document.getElementById('filterBulan').value; // Format: YYYY-MM
+            if (!filterValue) return;
+
+            let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
+            let filtered = history.filter(item => item.tanggal && item.tanggal.startsWith(filterValue));
+
+            if (filtered.length > 0) {
+                loadDashboardData(filtered);
+            } else {
+                alert(`Tidak ada data absensi untuk bulan ${filterValue}`);
+            }
+        }
+
+        function resetFilter() {
+            document.getElementById('filterBulan').value = '';
+            loadDashboardData();
+        }
+
+        // Jalankan saat pertama dibuka
+        loadDashboardData();
     </script>
 </body>
 </html>
