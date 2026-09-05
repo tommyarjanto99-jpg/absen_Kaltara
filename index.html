@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
-                    <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Total Hadir (Event Terakhir)</span>
+                    <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Total Hadir (Event Terpilih)</span>
                     <span id="dashTotalHadir" class="text-4xl md:text-5xl font-extrabold mt-1">0</span>
                     <span id="dashEventTitle" class="text-xs opacity-90 mt-1 truncate max-w-full px-2">Belum ada data</span>
                 </div>
@@ -81,13 +81,13 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-center border-collapse">
                         <thead id="dashTableHead">
-                            <!-- JS akan menyesuaikan header jika ada Sesi Siang/Malam -->
+                            <!-- Header Dynamic JS -->
                         </thead>
                         <tbody id="dashTableBody" class="divide-y divide-slate-200">
-                            <!-- Detail data di-render dari JS -->
+                            <!-- Body Dynamic JS -->
                         </tbody>
                         <tfoot id="dashTableFoot">
-                            <!-- Footer di-render dari JS -->
+                            <!-- Footer Dynamic JS -->
                         </tfoot>
                     </table>
                 </div>
@@ -101,7 +101,10 @@
 
             <!-- Daftar Riwayat Event -->
             <div class="border rounded-xl p-4 bg-white shadow-sm no-print">
-                <h3 class="font-bold text-slate-700 text-md mb-3">Daftar Riwayat Pengajian</h3>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-slate-700 text-md">Daftar Riwayat Pengajian</h3>
+                    <span class="text-xs text-slate-400">Klik item untuk melihat detail rekap</span>
+                </div>
                 <div id="historyList" class="space-y-2 text-xs">
                     <p class="italic text-slate-400">Belum ada data tersimpan.</p>
                 </div>
@@ -116,7 +119,7 @@
             <div id="adminAuthBox" class="bg-slate-50 border border-slate-200 p-6 rounded-xl max-w-md mx-auto text-center space-y-4">
                 <div class="text-3xl">🔑</div>
                 <h2 class="font-bold text-lg text-slate-800">Verifikasi Admin</h2>
-                <p class="text-xs text-slate-500">Masukkan PIN Admin untuk membuka form pengisian absensi.</p>
+                <p class="text-xs text-slate-500">Masukkan PIN Admin untuk membuka form pengisian absensi & kelola data.</p>
                 <input type="password" id="inputPin" placeholder="Masukkan PIN (Default: 1234)" class="w-full p-2.5 text-center text-lg border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
                 <button onclick="verifyAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-md transition">
                     Masuk Sebagai Admin
@@ -127,7 +130,7 @@
             <div id="adminFormContent" class="hidden space-y-6">
                 
                 <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-lg border border-emerald-200">
-                    <span class="text-xs font-bold text-emerald-800">✅ Mode Admin Aktif</span>
+                    <span class="text-xs font-bold text-emerald-800">✅ Mode Admin Aktif (Bisa input absensi & hapus riwayat)</span>
                     <button onclick="logoutAdmin()" class="text-xs text-red-600 hover:underline font-semibold">Kunci Kembali</button>
                 </div>
 
@@ -184,6 +187,7 @@
         const TOTAL_ANGGOTA = 1030;
         const ADMIN_PIN = "1234";
         let isAdminLoggedIn = false;
+        let selectedIndex = 0; // Menyimpan index riwayat yang sedang dipilih
 
         const daftarKelompok = [
             "Kel. CEPOGO",
@@ -235,6 +239,7 @@
             document.getElementById('inputPin').value = '';
             document.getElementById('adminAuthBox').classList.remove('hidden');
             document.getElementById('adminFormContent').classList.add('hidden');
+            loadDashboardData(); // Re-render riwayat untuk menyembunyikan tombol hapus
         }
 
         function renderInputTable() {
@@ -301,7 +306,6 @@
                     </tr>
                 `;
             } else {
-                // Sesi Tunggal
                 thead.innerHTML = `
                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
                         <th class="p-3 w-12">No</th>
@@ -358,7 +362,7 @@
                     const mi = parseInt(row.querySelector('.input-malam-izin').value) || 0;
                     const ma = parseInt(row.querySelector('.input-malam-alpha').value) || 0;
 
-                    const totHadir = Math.max(sh, mh); // Atau sh + mh tergantung aturan
+                    const totHadir = Math.max(sh, mh);
                     const totIzin = si + mi;
                     const totSemua = totHadir + totIzin + sa + ma;
 
@@ -457,6 +461,7 @@
             history.unshift(dataSubmit);
             localStorage.setItem('absensi_kaltara', JSON.stringify(history));
 
+            selectedIndex = 0; // otomatis pilih data yang baru dimasukkan
             alert(`Data '${jenisEvent}' berhasil disimpan!`);
             switchTab('dashboard');
         }
@@ -471,22 +476,31 @@
             const historyList = document.getElementById('historyList');
 
             if (history.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-slate-400 italic">Belum ada data absensi.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="p-4 text-slate-400 italic">Belum ada data absensi. Silakan tambahkan data melalui tab Input Admin.</td></tr>';
+                document.getElementById('dashTotalHadir').innerText = '0';
+                document.getElementById('dashEventTitle').innerText = 'Belum ada data';
+                document.getElementById('dashPersentase').innerText = '0%';
+                document.getElementById('viewEventTitle').innerText = 'Detail Rekap Event';
+                document.getElementById('viewEventMeta').innerText = 'Tanggal: - | Lokasi: -';
+                historyList.innerHTML = '<p class="italic text-slate-400">Belum ada data tersimpan.</p>';
                 return;
             }
 
-            const latest = displayData.length > 0 ? displayData[0] : history[0];
-            
-            document.getElementById('dashTotalHadir').innerText = latest.totalHadir;
-            document.getElementById('dashEventTitle').innerText = latest.event;
-            document.getElementById('dashPersentase').innerText = latest.persentase;
+            // Memilih item berdasarkan selectedIndex
+            if (selectedIndex >= displayData.length) selectedIndex = 0;
+            const targetData = displayData[selectedIndex] || displayData[0];
 
-            document.getElementById('viewEventTitle').innerText = latest.event;
-            document.getElementById('viewEventMeta').innerText = `Tanggal: ${latest.tanggal || '-'} | Lokasi: ${latest.lokasi || '-'}`;
+            // Tampilkan Ringkasan Event Terpilih
+            document.getElementById('dashTotalHadir').innerText = targetData.totalHadir;
+            document.getElementById('dashEventTitle').innerText = targetData.event;
+            document.getElementById('dashPersentase').innerText = targetData.persentase;
+
+            document.getElementById('viewEventTitle').innerText = targetData.event;
+            document.getElementById('viewEventMeta').innerText = `Tanggal: ${targetData.tanggal || '-'} | Lokasi: ${targetData.lokasi || '-'}`;
 
             tbody.innerHTML = '';
 
-            if (latest.event === "Pengajian Umum Desa") {
+            if (targetData.event === "Pengajian Umum Desa") {
                 thead.innerHTML = `
                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
                         <th class="p-2.5 w-10" rowspan="2">No</th>
@@ -504,7 +518,7 @@
 
                 let totSH=0, totSI=0, totSA=0, totMH=0, totMI=0, totMA=0, totGH=0, totGI=0, totGS=0;
 
-                latest.detail.forEach((item, index) => {
+                targetData.detail.forEach((item, index) => {
                     totSH += item.siang.hadir; totSI += item.siang.izin; totSA += item.siang.alpha;
                     totMH += item.malam.hadir; totMI += item.malam.izin; totMA += item.malam.alpha;
                     totGH += item.totalHadir; totGI += item.totalIzin; totGS += item.totalSemua;
@@ -552,7 +566,7 @@
 
                 let totH=0, totI=0, totA=0, totS=0;
 
-                latest.detail.forEach((item, index) => {
+                targetData.detail.forEach((item, index) => {
                     totH += item.hadir; totI += item.izin; totA += item.alpha; totS += item.totalSemua;
 
                     const row = document.createElement('tr');
@@ -579,24 +593,57 @@
                 `;
             }
 
-            historyList.innerHTML = history.map((item, idx) => `
-                <div class="p-3 bg-slate-50 hover:bg-emerald-50 border rounded-lg flex justify-between items-center cursor-pointer transition" onclick="selectHistoryItem(${idx})">
-                    <div>
-                        <span class="font-bold text-emerald-700">${item.event}</span> 
-                        <span class="text-slate-500">(${item.tanggal})</span>
-                        <div class="text-slate-400 text-[11px]">${item.lokasi || 'Tanpa Lokasi'}</div>
+            // Render Daftar Riwayat Pengajian
+            historyList.innerHTML = history.map((item, idx) => {
+                const activeStyle = idx === selectedIndex ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200' : 'bg-slate-50 hover:bg-emerald-50/50 border-slate-200';
+                
+                // Tombol Hapus hanya muncul jika Admin telah masuk
+                const deleteBtnHtml = isAdminLoggedIn 
+                    ? `<button onclick="hapusRiwayat(event, ${idx})" title="Hapus Riwayat" class="ml-2 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg transition text-xs font-bold">🗑️</button>`
+                    : '';
+
+                return `
+                    <div class="p-3 border rounded-lg flex justify-between items-center cursor-pointer transition ${activeStyle}" onclick="selectHistoryItem(${idx})">
+                        <div>
+                            <span class="font-bold text-emerald-700">${item.event}</span> 
+                            <span class="text-slate-500">(${item.tanggal})</span>
+                            <div class="text-slate-400 text-[11px]">${item.lokasi || 'Tanpa Lokasi'}</div>
+                        </div>
+                        <div class="flex items-center gap-2 text-right">
+                            <div>
+                                <span class="font-bold text-slate-700">${item.totalHadir} Hadir</span>
+                                <span class="ml-1 font-semibold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded text-[10px]">${item.persentase}</span>
+                            </div>
+                            ${deleteBtnHtml}
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <span class="font-bold text-slate-700">${item.totalHadir} Hadir</span>
-                        <span class="ml-2 font-semibold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded text-[10px]">${item.persentase}</span>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
+        // Memilih Riwayat saat Di-klik
         function selectHistoryItem(index) {
+            selectedIndex = index;
+            loadDashboardData();
+        }
+
+        // Fungsi Hapus Riwayat (Khusus Admin)
+        function hapusRiwayat(event, index) {
+            event.stopPropagation(); // Mencegah pemicu klik selectHistoryItem saat tombol hapus diklik
+            
             let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
-            if (history[index]) loadDashboardData([history[index]]);
+            const item = history[index];
+
+            if (confirm(`Apakah Anda yakin ingin menghapus riwayat '${item.event}' (${item.tanggal})?`)) {
+                history.splice(index, 1);
+                localStorage.setItem('absensi_kaltara', JSON.stringify(history));
+
+                if (selectedIndex >= history.length) {
+                    selectedIndex = Math.max(0, history.length - 1);
+                }
+
+                loadDashboardData();
+            }
         }
 
         function filterDataBulan() {
@@ -607,6 +654,7 @@
             let filtered = history.filter(item => item.tanggal && item.tanggal.startsWith(filterValue));
 
             if (filtered.length > 0) {
+                selectedIndex = 0;
                 loadDashboardData(filtered);
             } else {
                 alert(`Tidak ada data untuk bulan ${filterValue}`);
@@ -615,6 +663,7 @@
 
         function resetFilter() {
             document.getElementById('filterBulan').value = '';
+            selectedIndex = 0;
             loadDashboardData();
         }
 
