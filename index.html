@@ -16,7 +16,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 p-3 md:p-6 min-h-screen">
 
-    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-4 md:p-8 container-box">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md p-4 md:p-8 container-box">
         
         <!-- Header Utama -->
         <div class="text-center border-b pb-4 mb-6">
@@ -39,21 +39,18 @@
             
             <!-- Dashboard Ringkasan Utama -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Card Total Anggota -->
                 <div class="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
                     <span class="text-xs uppercase tracking-wider font-semibold opacity-80">Total Target Anggota</span>
                     <span class="text-4xl md:text-5xl font-extrabold mt-1">1030</span>
                     <span class="text-xs opacity-75 mt-1">Jamaah Kaltara</span>
                 </div>
 
-                <!-- Card Total Hadir Terbaru -->
                 <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
                     <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Total Hadir (Event Terakhir)</span>
                     <span id="dashTotalHadir" class="text-4xl md:text-5xl font-extrabold mt-1">0</span>
                     <span id="dashEventTitle" class="text-xs opacity-90 mt-1 truncate max-w-full px-2">Belum ada data</span>
                 </div>
 
-                <!-- Card Persentase Kehadiran -->
                 <div class="bg-gradient-to-br from-teal-600 to-cyan-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center border-2 border-teal-400">
                     <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Persentase Kehadiran</span>
                     <span id="dashPersentase" class="text-4xl md:text-5xl font-extrabold mt-1">0%</span>
@@ -61,7 +58,7 @@
                 </div>
             </div>
 
-            <!-- Filter Bulan / Tahun untuk Melihat Data Lama -->
+            <!-- Filter Bulan / Tahun -->
             <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 no-print">
                 <div class="font-bold text-slate-700 text-sm">
                     📁 Arsip Data Bulan Sebelumnya
@@ -74,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- Tabel Tampilan Rekap Data Event Terpilih/Terbaru -->
+            <!-- Tabel Tampilan Rekap Data Event Terpilih -->
             <div class="border rounded-xl p-4 bg-white shadow-sm">
                 <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-4 gap-2">
                     <h3 id="viewEventTitle" class="font-bold text-emerald-800 text-lg">Detail Rekap Event Terbaru</h3>
@@ -83,27 +80,14 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-center border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
-                                <th class="p-2.5 w-12">No</th>
-                                <th class="p-2.5 text-left">Nama Kelompok</th>
-                                <th class="p-2.5">Hadir</th>
-                                <th class="p-2.5">Izin</th>
-                                <th class="p-2.5">Alpha</th>
-                                <th class="p-2.5 font-bold">Total</th>
-                            </tr>
+                        <thead id="dashTableHead">
+                            <!-- JS akan menyesuaikan header jika ada Sesi Siang/Malam -->
                         </thead>
                         <tbody id="dashTableBody" class="divide-y divide-slate-200">
                             <!-- Detail data di-render dari JS -->
                         </tbody>
-                        <tfoot>
-                            <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
-                                <td colspan="2" class="p-2.5 text-left">TOTAL KESELURUHAN</td>
-                                <td id="dashFooterHadir" class="p-2.5">0</td>
-                                <td id="dashFooterIzin" class="p-2.5">0</td>
-                                <td id="dashFooterAlpha" class="p-2.5">0</td>
-                                <td id="dashFooterTotal" class="p-2.5 font-extrabold text-emerald-950">0</td>
-                            </tr>
+                        <tfoot id="dashTableFoot">
+                            <!-- Footer di-render dari JS -->
                         </tfoot>
                     </table>
                 </div>
@@ -128,7 +112,7 @@
         <!-- ==================== TAB 2: INPUT ABSENSI (KHUSUS ADMIN) ==================== -->
         <div id="tabInput" class="hidden space-y-6">
 
-            <!-- Modal / Form Verifikasi PIN Admin -->
+            <!-- PIN Admin -->
             <div id="adminAuthBox" class="bg-slate-50 border border-slate-200 p-6 rounded-xl max-w-md mx-auto text-center space-y-4">
                 <div class="text-3xl">🔑</div>
                 <h2 class="font-bold text-lg text-slate-800">Verifikasi Admin</h2>
@@ -139,7 +123,7 @@
                 </button>
             </div>
 
-            <!-- Form Input Absensi (Awalnya Tersembunyi) -->
+            <!-- Form Input Absensi -->
             <div id="adminFormContent" class="hidden space-y-6">
                 
                 <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-lg border border-emerald-200">
@@ -147,12 +131,12 @@
                     <button onclick="logoutAdmin()" class="text-xs text-red-600 hover:underline font-semibold">Kunci Kembali</button>
                 </div>
 
-                <!-- Form Event Header -->
+                <!-- Header Event Form -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <div>
                         <label for="jenisEvent" class="block text-xs font-semibold text-slate-600 mb-1">Jenis Event / Pengajian</label>
-                        <select id="jenisEvent" onchange="updateAdminSummary()" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="Pengajian Umum Desa">Pengajian Umum Desa</option>
+                        <select id="jenisEvent" onchange="renderInputTable()" class="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="Pengajian Umum Desa">Pengajian Umum Desa (2 Sesi: Siang & Malam)</option>
                             <option value="Pengajian Remaja">Pengajian Remaja</option>
                             <option value="Pengajian Ibu-Ibu">Pengajian Ibu-Ibu</option>
                             <option value="Pengajian Bapak-Bapak">Pengajian Bapak-Bapak</option>
@@ -169,31 +153,18 @@
                     </div>
                 </div>
 
-                <!-- Tabel Input Absensi 8 Kelompok -->
+                <!-- Tabel Dynamic Input -->
                 <form id="attendanceForm" onsubmit="event.preventDefault();">
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-center border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
-                                    <th class="p-3 w-12">No</th>
-                                    <th class="p-3 text-left">Nama Kelompok</th>
-                                    <th class="p-3 w-20 md:w-24">Hadir</th>
-                                    <th class="p-3 w-20 md:w-24">Izin</th>
-                                    <th class="p-3 w-20 md:w-24">Alpha</th>
-                                    <th class="p-3 w-20 md:w-24 font-bold">Total</th>
-                                </tr>
+                            <thead id="inputTableHead">
+                                <!-- Dynamic JS Header -->
                             </thead>
                             <tbody id="inputTableBody" class="divide-y divide-slate-200">
-                                <!-- Form input kelompok -->
+                                <!-- Dynamic JS Rows -->
                             </tbody>
-                            <tfoot>
-                                <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
-                                    <td colspan="2" class="p-3 text-left">TOTAL KESELURUHAN</td>
-                                    <td id="inputTotalHadir" class="p-3">0</td>
-                                    <td id="inputTotalIzin" class="p-3">0</td>
-                                    <td id="inputTotalAlpha" class="p-3">0</td>
-                                    <td id="inputTotalSemua" class="p-3 text-emerald-950 font-extrabold">0</td>
-                                </tr>
+                            <tfoot id="inputTableFoot">
+                                <!-- Dynamic JS Footer -->
                             </tfoot>
                         </table>
                     </div>
@@ -211,7 +182,7 @@
 
     <script>
         const TOTAL_ANGGOTA = 1030;
-        const ADMIN_PIN = "1234"; // PIN bawaan Admin (dapat diubah sesuai kebutuhan)
+        const ADMIN_PIN = "1234";
         let isAdminLoggedIn = false;
 
         const daftarKelompok = [
@@ -227,7 +198,6 @@
 
         document.getElementById('tanggalEvent').valueAsDate = new Date();
 
-        // Navigasi Tab
         function switchTab(tab) {
             const btnDash = document.getElementById('btnTabDashboard');
             const btnInput = document.getElementById('btnTabInput');
@@ -248,7 +218,6 @@
             }
         }
 
-        // Verifikasi PIN Admin
         function verifyAdmin() {
             const pin = document.getElementById('inputPin').value;
             if (pin === ADMIN_PIN) {
@@ -257,7 +226,7 @@
                 document.getElementById('adminFormContent').classList.remove('hidden');
                 renderInputTable();
             } else {
-                alert("PIN Salah! Silakan coba lagi.");
+                alert("PIN Salah!");
             }
         }
 
@@ -268,53 +237,173 @@
             document.getElementById('adminFormContent').classList.add('hidden');
         }
 
-        // Render Form Input
         function renderInputTable() {
+            const jenis = document.getElementById('jenisEvent').value;
+            const thead = document.getElementById('inputTableHead');
             const tbody = document.getElementById('inputTableBody');
+            const tfoot = document.getElementById('inputTableFoot');
+
             tbody.innerHTML = '';
 
-            daftarKelompok.forEach((kelompok, index) => {
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50";
-                row.innerHTML = `
-                    <td class="p-2 text-slate-500">${index + 1}</td>
-                    <td class="p-2 text-left font-medium text-emerald-800">${kelompok}</td>
-                    <td class="p-2"><input type="number" min="0" value="0" class="input-hadir w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none" oninput="hitungInputTotal()"></td>
-                    <td class="p-2"><input type="number" min="0" value="0" class="input-izin w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none" oninput="hitungInputTotal()"></td>
-                    <td class="p-2"><input type="number" min="0" value="0" class="input-alpha w-16 md:w-20 p-1 text-center border rounded border-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none" oninput="hitungInputTotal()"></td>
-                    <td class="p-2 row-total font-semibold text-slate-700">0</td>
+            if (jenis === "Pengajian Umum Desa") {
+                thead.innerHTML = `
+                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                        <th class="p-3 w-10" rowspan="2">No</th>
+                        <th class="p-3 text-left" rowspan="2">Nama Kelompok</th>
+                        <th class="p-2 border-l border-r bg-amber-50 text-amber-900" colspan="3">Sesi Siang</th>
+                        <th class="p-2 border-r bg-indigo-50 text-indigo-900" colspan="3">Sesi Malam</th>
+                        <th class="p-2 bg-emerald-100 text-emerald-950" colspan="3">Rekap Gabungan</th>
+                    </tr>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-300 text-xs">
+                        <th class="p-2 bg-amber-50">Hadir</th><th class="p-2 bg-amber-50">Izin</th><th class="p-2 bg-amber-50 border-r">Alpha</th>
+                        <th class="p-2 bg-indigo-50">Hadir</th><th class="p-2 bg-indigo-50">Izin</th><th class="p-2 bg-indigo-50 border-r">Alpha</th>
+                        <th class="p-2 bg-emerald-50">Hadir</th><th class="p-2 bg-emerald-50">Izin</th><th class="p-2 bg-emerald-50 font-bold">Total</th>
+                    </tr>
                 `;
-                tbody.appendChild(row);
-            });
+
+                daftarKelompok.forEach((kelompok, index) => {
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 text-xs md:text-sm";
+                    row.innerHTML = `
+                        <td class="p-2 text-slate-500">${index + 1}</td>
+                        <td class="p-2 text-left font-medium text-emerald-800">${kelompok}</td>
+                        
+                        <!-- Siang -->
+                        <td class="p-1 bg-amber-50/50"><input type="number" min="0" value="0" class="input-siang-hadir w-12 md:w-16 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-1 bg-amber-50/50"><input type="number" min="0" value="0" class="input-siang-izin w-12 md:w-16 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-1 bg-amber-50/50 border-r"><input type="number" min="0" value="0" class="input-siang-alpha w-12 md:w-16 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+
+                        <!-- Malam -->
+                        <td class="p-1 bg-indigo-50/50"><input type="number" min="0" value="0" class="input-malam-hadir w-12 md:w-16 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-1 bg-indigo-50/50"><input type="number" min="0" value="0" class="input-malam-izin w-12 md:w-16 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-1 bg-indigo-50/50 border-r"><input type="number" min="0" value="0" class="input-malam-alpha w-12 md:w-16 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+
+                        <!-- Rekap Gabungan -->
+                        <td class="p-2 font-bold bg-emerald-50/30 row-total-hadir">0</td>
+                        <td class="p-2 bg-emerald-50/30 text-slate-600 row-total-izin">0</td>
+                        <td class="p-2 font-extrabold bg-emerald-100/50 text-emerald-900 row-total-semua">0</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                tfoot.innerHTML = `
+                    <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300 text-xs md:text-sm">
+                        <td colspan="2" class="p-2.5 text-left">TOTAL KESELURUHAN</td>
+                        <td id="totSiangHadir" class="p-2">0</td>
+                        <td id="totSiangIzin" class="p-2">0</td>
+                        <td id="totSiangAlpha" class="p-2 border-r">0</td>
+                        <td id="totMalamHadir" class="p-2">0</td>
+                        <td id="totMalamIzin" class="p-2">0</td>
+                        <td id="totMalamAlpha" class="p-2 border-r">0</td>
+                        <td id="inputTotalHadir" class="p-2 text-emerald-950 font-extrabold">0</td>
+                        <td id="inputTotalIzin" class="p-2">0</td>
+                        <td id="inputTotalSemua" class="p-2 text-emerald-950 font-extrabold">0</td>
+                    </tr>
+                `;
+            } else {
+                // Sesi Tunggal
+                thead.innerHTML = `
+                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                        <th class="p-3 w-12">No</th>
+                        <th class="p-3 text-left">Nama Kelompok</th>
+                        <th class="p-3 w-20 md:w-24">Hadir</th>
+                        <th class="p-3 w-20 md:w-24">Izin</th>
+                        <th class="p-3 w-20 md:w-24">Alpha</th>
+                        <th class="p-3 w-20 md:w-24 font-bold">Total</th>
+                    </tr>
+                `;
+
+                daftarKelompok.forEach((kelompok, index) => {
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50";
+                    row.innerHTML = `
+                        <td class="p-2 text-slate-500">${index + 1}</td>
+                        <td class="p-2 text-left font-medium text-emerald-800">${kelompok}</td>
+                        <td class="p-2"><input type="number" min="0" value="0" class="input-hadir w-16 md:w-20 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-2"><input type="number" min="0" value="0" class="input-izin w-16 md:w-20 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-2"><input type="number" min="0" value="0" class="input-alpha w-16 md:w-20 p-1 text-center border rounded border-slate-300" oninput="hitungInputTotal()"></td>
+                        <td class="p-2 row-total font-semibold text-slate-700">0</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                tfoot.innerHTML = `
+                    <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
+                        <td colspan="2" class="p-3 text-left">TOTAL KESELURUHAN</td>
+                        <td id="inputTotalHadir" class="p-3">0</td>
+                        <td id="inputTotalIzin" class="p-3">0</td>
+                        <td id="inputTotalAlpha" class="p-3">0</td>
+                        <td id="inputTotalSemua" class="p-3 text-emerald-950 font-extrabold">0</td>
+                    </tr>
+                `;
+            }
             hitungInputTotal();
         }
 
-        // Kalkulasi Input Admin
         function hitungInputTotal() {
+            const jenis = document.getElementById('jenisEvent').value;
             const rows = document.querySelectorAll('#inputTableBody tr');
-            let grandHadir = 0, grandIzin = 0, grandAlpha = 0, grandTotal = 0;
 
-            rows.forEach(row => {
-                const hadir = parseInt(row.querySelector('.input-hadir').value) || 0;
-                const izin = parseInt(row.querySelector('.input-izin').value) || 0;
-                const alpha = parseInt(row.querySelector('.input-alpha').value) || 0;
-                
-                const totalBaris = hadir + izin + alpha;
-                row.querySelector('.row-total').innerText = totalBaris;
+            if (jenis === "Pengajian Umum Desa") {
+                let sHadir = 0, sIzin = 0, sAlpha = 0;
+                let mHadir = 0, mIzin = 0, mAlpha = 0;
+                let gHadir = 0, gIzin = 0, gSemua = 0;
 
-                grandHadir += hadir;
-                grandIzin += izin;
-                grandAlpha += alpha;
-                grandTotal += totalBaris;
-            });
+                rows.forEach(row => {
+                    const sh = parseInt(row.querySelector('.input-siang-hadir').value) || 0;
+                    const si = parseInt(row.querySelector('.input-siang-izin').value) || 0;
+                    const sa = parseInt(row.querySelector('.input-siang-alpha').value) || 0;
 
-            document.getElementById('inputTotalHadir').innerText = grandHadir;
-            document.getElementById('inputTotalIzin').innerText = grandIzin;
-            document.getElementById('inputTotalAlpha').innerText = grandAlpha;
-            document.getElementById('inputTotalSemua').innerText = grandTotal;
+                    const mh = parseInt(row.querySelector('.input-malam-hadir').value) || 0;
+                    const mi = parseInt(row.querySelector('.input-malam-izin').value) || 0;
+                    const ma = parseInt(row.querySelector('.input-malam-alpha').value) || 0;
+
+                    const totHadir = Math.max(sh, mh); // Atau sh + mh tergantung aturan
+                    const totIzin = si + mi;
+                    const totSemua = totHadir + totIzin + sa + ma;
+
+                    row.querySelector('.row-total-hadir').innerText = totHadir;
+                    row.querySelector('.row-total-izin').innerText = totIzin;
+                    row.querySelector('.row-total-semua').innerText = totSemua;
+
+                    sHadir += sh; sIzin += si; sAlpha += sa;
+                    mHadir += mh; mIzin += mi; mAlpha += ma;
+                    gHadir += totHadir; gIzin += totIzin; gSemua += totSemua;
+                });
+
+                document.getElementById('totSiangHadir').innerText = sHadir;
+                document.getElementById('totSiangIzin').innerText = sIzin;
+                document.getElementById('totSiangAlpha').innerText = sAlpha;
+
+                document.getElementById('totMalamHadir').innerText = mHadir;
+                document.getElementById('totMalamIzin').innerText = mIzin;
+                document.getElementById('totMalamAlpha').innerText = mAlpha;
+
+                document.getElementById('inputTotalHadir').innerText = gHadir;
+                document.getElementById('inputTotalIzin').innerText = gIzin;
+                document.getElementById('inputTotalSemua').innerText = gSemua;
+
+            } else {
+                let gHadir = 0, gIzin = 0, gAlpha = 0, gSemua = 0;
+
+                rows.forEach(row => {
+                    const h = parseInt(row.querySelector('.input-hadir').value) || 0;
+                    const i = parseInt(row.querySelector('.input-izin').value) || 0;
+                    const a = parseInt(row.querySelector('.input-alpha').value) || 0;
+
+                    const total = h + i + a;
+                    row.querySelector('.row-total').innerText = total;
+
+                    gHadir += h; gIzin += i; gAlpha += a; gSemua += total;
+                });
+
+                document.getElementById('inputTotalHadir').innerText = gHadir;
+                document.getElementById('inputTotalIzin').innerText = gIzin;
+                document.getElementById('inputTotalAlpha').innerText = gAlpha;
+                document.getElementById('inputTotalSemua').innerText = gSemua;
+            }
         }
 
-        // Simpan Data oleh Admin
         function simpanAbsensi() {
             const jenisEvent = document.getElementById('jenisEvent').value;
             const tanggal = document.getElementById('tanggalEvent').value;
@@ -323,13 +412,35 @@
             const persentase = ((totalHadir / TOTAL_ANGGOTA) * 100).toFixed(1) + '%';
 
             const rekap = [];
-            document.querySelectorAll('#inputTableBody tr').forEach((row, index) => {
-                rekap.push({
-                    kelompok: daftarKelompok[index],
-                    hadir: parseInt(row.querySelector('.input-hadir').value) || 0,
-                    izin: parseInt(row.querySelector('.input-izin').value) || 0,
-                    alpha: parseInt(row.querySelector('.input-alpha').value) || 0
-                });
+            const rows = document.querySelectorAll('#inputTableBody tr');
+
+            rows.forEach((row, index) => {
+                if (jenisEvent === "Pengajian Umum Desa") {
+                    rekap.push({
+                        kelompok: daftarKelompok[index],
+                        siang: {
+                            hadir: parseInt(row.querySelector('.input-siang-hadir').value) || 0,
+                            izin: parseInt(row.querySelector('.input-siang-izin').value) || 0,
+                            alpha: parseInt(row.querySelector('.input-siang-alpha').value) || 0
+                        },
+                        malam: {
+                            hadir: parseInt(row.querySelector('.input-malam-hadir').value) || 0,
+                            izin: parseInt(row.querySelector('.input-malam-izin').value) || 0,
+                            alpha: parseInt(row.querySelector('.input-malam-alpha').value) || 0
+                        },
+                        totalHadir: parseInt(row.querySelector('.row-total-hadir').innerText) || 0,
+                        totalIzin: parseInt(row.querySelector('.row-total-izin').innerText) || 0,
+                        totalSemua: parseInt(row.querySelector('.row-total-semua').innerText) || 0
+                    });
+                } else {
+                    rekap.push({
+                        kelompok: daftarKelompok[index],
+                        hadir: parseInt(row.querySelector('.input-hadir').value) || 0,
+                        izin: parseInt(row.querySelector('.input-izin').value) || 0,
+                        alpha: parseInt(row.querySelector('.input-alpha').value) || 0,
+                        totalSemua: parseInt(row.querySelector('.row-total').innerText) || 0
+                    });
+                }
             });
 
             const dataSubmit = {
@@ -338,9 +449,6 @@
                 tanggal: tanggal,
                 lokasi: lokasi,
                 totalHadir: totalHadir,
-                totalIzin: parseInt(document.getElementById('inputTotalIzin').innerText) || 0,
-                totalAlpha: parseInt(document.getElementById('inputTotalAlpha').innerText) || 0,
-                totalSemua: parseInt(document.getElementById('inputTotalSemua').innerText) || 0,
                 persentase: persentase,
                 detail: rekap
             };
@@ -349,24 +457,24 @@
             history.unshift(dataSubmit);
             localStorage.setItem('absensi_kaltara', JSON.stringify(history));
 
-            alert(`Absensi '${jenisEvent}' berhasil disimpan! Kehadiran: ${persentase}`);
+            alert(`Data '${jenisEvent}' berhasil disimpan!`);
             switchTab('dashboard');
         }
 
-        // Load & Filter Data di Dashboard
         function loadDashboardData(filteredData = null) {
             let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
             let displayData = filteredData ? filteredData : history;
 
             const tbody = document.getElementById('dashTableBody');
+            const thead = document.getElementById('dashTableHead');
+            const tfoot = document.getElementById('dashTableFoot');
             const historyList = document.getElementById('historyList');
 
             if (history.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-slate-400 italic">Belum ada data absensi tersimpan. Silakan login admin untuk menambah data.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-slate-400 italic">Belum ada data absensi.</td></tr>';
                 return;
             }
 
-            // Tampilkan data event paling baru / terpilih
             const latest = displayData.length > 0 ? displayData[0] : history[0];
             
             document.getElementById('dashTotalHadir').innerText = latest.totalHadir;
@@ -376,29 +484,101 @@
             document.getElementById('viewEventTitle').innerText = latest.event;
             document.getElementById('viewEventMeta').innerText = `Tanggal: ${latest.tanggal || '-'} | Lokasi: ${latest.lokasi || '-'}`;
 
-            // Render Detail Tabel Event Terpilih
             tbody.innerHTML = '';
-            latest.detail.forEach((item, index) => {
-                const totalBaris = item.hadir + item.izin + item.alpha;
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-500">${index + 1}</td>
-                    <td class="p-2.5 text-left font-medium text-emerald-800">${item.kelompok}</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${item.hadir}</td>
-                    <td class="p-2.5 text-slate-600">${item.izin}</td>
-                    <td class="p-2.5 text-slate-600">${item.alpha}</td>
-                    <td class="p-2.5 font-bold text-slate-800">${totalBaris}</td>
+
+            if (latest.event === "Pengajian Umum Desa") {
+                thead.innerHTML = `
+                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                        <th class="p-2.5 w-10" rowspan="2">No</th>
+                        <th class="p-2.5 text-left" rowspan="2">Nama Kelompok</th>
+                        <th class="p-2 border-l border-r bg-amber-50" colspan="3">Sesi Siang</th>
+                        <th class="p-2 border-r bg-indigo-50" colspan="3">Sesi Malam</th>
+                        <th class="p-2 bg-emerald-100" colspan="3">Rekap Gabungan</th>
+                    </tr>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-300 text-xs">
+                        <th class="p-1 bg-amber-50">Hadir</th><th class="p-1 bg-amber-50">Izin</th><th class="p-1 bg-amber-50 border-r">Alpha</th>
+                        <th class="p-1 bg-indigo-50">Hadir</th><th class="p-1 bg-indigo-50">Izin</th><th class="p-1 bg-indigo-50 border-r">Alpha</th>
+                        <th class="p-1 bg-emerald-50">Hadir</th><th class="p-1 bg-emerald-50">Izin</th><th class="p-1 bg-emerald-50 font-bold">Total</th>
+                    </tr>
                 `;
-                tbody.appendChild(row);
-            });
 
-            document.getElementById('dashFooterHadir').innerText = latest.totalHadir;
-            document.getElementById('dashFooterIzin').innerText = latest.totalIzin;
-            document.getElementById('dashFooterAlpha').innerText = latest.totalAlpha;
-            document.getElementById('dashFooterTotal').innerText = latest.totalSemua;
+                let totSH=0, totSI=0, totSA=0, totMH=0, totMI=0, totMA=0, totGH=0, totGI=0, totGS=0;
 
-            // Render Daftar Riwayat
+                latest.detail.forEach((item, index) => {
+                    totSH += item.siang.hadir; totSI += item.siang.izin; totSA += item.siang.alpha;
+                    totMH += item.malam.hadir; totMI += item.malam.izin; totMA += item.malam.alpha;
+                    totGH += item.totalHadir; totGI += item.totalIzin; totGS += item.totalSemua;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 text-xs md:text-sm";
+                    row.innerHTML = `
+                        <td class="p-2 text-slate-500">${index + 1}</td>
+                        <td class="p-2 text-left font-medium text-emerald-800">${item.kelompok}</td>
+                        <td class="p-2 bg-amber-50/30">${item.siang.hadir}</td>
+                        <td class="p-2 bg-amber-50/30 text-slate-500">${item.siang.izin}</td>
+                        <td class="p-2 bg-amber-50/30 text-slate-500 border-r">${item.siang.alpha}</td>
+                        <td class="p-2 bg-indigo-50/30">${item.malam.hadir}</td>
+                        <td class="p-2 bg-indigo-50/30 text-slate-500">${item.malam.izin}</td>
+                        <td class="p-2 bg-indigo-50/30 text-slate-500 border-r">${item.malam.alpha}</td>
+                        <td class="p-2 font-bold bg-emerald-50/40">${item.totalHadir}</td>
+                        <td class="p-2 bg-emerald-50/40 text-slate-600">${item.totalIzin}</td>
+                        <td class="p-2 font-extrabold bg-emerald-100/40 text-emerald-900">${item.totalSemua}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                tfoot.innerHTML = `
+                    <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300 text-xs md:text-sm">
+                        <td colspan="2" class="p-2.5 text-left">TOTAL KESELURUHAN</td>
+                        <td class="p-2">${totSH}</td><td class="p-2">${totSI}</td><td class="p-2 border-r">${totSA}</td>
+                        <td class="p-2">${totMH}</td><td class="p-2">${totMI}</td><td class="p-2 border-r">${totMA}</td>
+                        <td class="p-2 text-emerald-950 font-extrabold">${totGH}</td>
+                        <td class="p-2">${totGI}</td>
+                        <td class="p-2 text-emerald-950 font-extrabold">${totGS}</td>
+                    </tr>
+                `;
+
+            } else {
+                thead.innerHTML = `
+                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                        <th class="p-2.5 w-12">No</th>
+                        <th class="p-2.5 text-left">Nama Kelompok</th>
+                        <th class="p-2.5">Hadir</th>
+                        <th class="p-2.5">Izin</th>
+                        <th class="p-2.5">Alpha</th>
+                        <th class="p-2.5 font-bold">Total</th>
+                    </tr>
+                `;
+
+                let totH=0, totI=0, totA=0, totS=0;
+
+                latest.detail.forEach((item, index) => {
+                    totH += item.hadir; totI += item.izin; totA += item.alpha; totS += item.totalSemua;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50";
+                    row.innerHTML = `
+                        <td class="p-2.5 text-slate-500">${index + 1}</td>
+                        <td class="p-2.5 text-left font-medium text-emerald-800">${item.kelompok}</td>
+                        <td class="p-2.5 font-semibold text-slate-700">${item.hadir}</td>
+                        <td class="p-2.5 text-slate-600">${item.izin}</td>
+                        <td class="p-2.5 text-slate-600">${item.alpha}</td>
+                        <td class="p-2.5 font-bold text-slate-800">${item.totalSemua}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                tfoot.innerHTML = `
+                    <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-300">
+                        <td colspan="2" class="p-2.5 text-left">TOTAL KESELURUHAN</td>
+                        <td class="p-2.5">${totH}</td>
+                        <td class="p-2.5">${totI}</td>
+                        <td class="p-2.5">${totA}</td>
+                        <td class="p-2.5 font-extrabold text-emerald-950">${totS}</td>
+                    </tr>
+                `;
+            }
+
             historyList.innerHTML = history.map((item, idx) => `
                 <div class="p-3 bg-slate-50 hover:bg-emerald-50 border rounded-lg flex justify-between items-center cursor-pointer transition" onclick="selectHistoryItem(${idx})">
                     <div>
@@ -414,17 +594,13 @@
             `).join('');
         }
 
-        // Pilih item riwayat untuk dilihat di tabel
         function selectHistoryItem(index) {
             let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
-            if (history[index]) {
-                loadDashboardData([history[index]]);
-            }
+            if (history[index]) loadDashboardData([history[index]]);
         }
 
-        // Filter Data Berdasarkan Bulan & Tahun
         function filterDataBulan() {
-            const filterValue = document.getElementById('filterBulan').value; // Format: YYYY-MM
+            const filterValue = document.getElementById('filterBulan').value;
             if (!filterValue) return;
 
             let history = JSON.parse(localStorage.getItem('absensi_kaltara')) || [];
@@ -433,7 +609,7 @@
             if (filtered.length > 0) {
                 loadDashboardData(filtered);
             } else {
-                alert(`Tidak ada data absensi untuk bulan ${filterValue}`);
+                alert(`Tidak ada data untuk bulan ${filterValue}`);
             }
         }
 
@@ -442,7 +618,6 @@
             loadDashboardData();
         }
 
-        // Jalankan saat pertama dibuka
         loadDashboardData();
     </script>
 </body>
