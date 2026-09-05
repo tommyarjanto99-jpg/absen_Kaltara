@@ -20,14 +20,14 @@
         <h1 class="text-2xl font-black bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent flex items-center gap-2">
           <i class="fa-solid fa-mosque text-emerald-400"></i> ABSEN DESA KALTARA
         </h1>
-        <!-- Tanggal, Bulan, Tahun Hari Ini -->
+        <!-- Tanggal, Bulan, dan Tahun Otomatis -->
         <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
           <i class="fa-regular fa-calendar-days text-emerald-400"></i>
           <span x-text="currentDateFormatted"></span>
         </p>
       </div>
 
-      <!-- Mode Admin Toggle -->
+      <!-- Button/Status Mode Admin -->
       <div class="flex items-center gap-2">
         <template x-if="isAdmin">
           <div class="flex items-center gap-2">
@@ -51,98 +51,92 @@
   <!-- KONTEN UTAMA -->
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow space-y-6">
 
-    <!-- TAB NAVIGASI -->
+    <!-- TAB NAVIGASI UTAMA -->
     <div class="flex border-b border-slate-700 gap-2">
       <button 
         @click="activeTab = 'dashboard'" 
         :class="activeTab === 'dashboard' ? 'border-emerald-500 text-emerald-400 bg-slate-800/50' : 'border-transparent text-slate-400 hover:text-slate-200'"
         class="px-4 py-2.5 font-semibold text-sm border-b-2 rounded-t-lg transition flex items-center gap-2">
-        <i class="fa-solid fa-chart-pie"></i> Ringkasan & Dashboard
+        <i class="fa-solid fa-chart-pie"></i> Rekap Utama
       </button>
-      
-      <!-- Tab Pengisian Khusus Admin -->
+
+      <!-- Tab Input Data Khusus Admin -->
       <button 
         x-show="isAdmin"
         @click="activeTab = 'input'" 
         :class="activeTab === 'input' ? 'border-emerald-500 text-emerald-400 bg-slate-800/50' : 'border-transparent text-slate-400 hover:text-slate-200'"
         class="px-4 py-2.5 font-semibold text-sm border-b-2 rounded-t-lg transition flex items-center gap-2">
-        <i class="fa-solid fa-pen-to-square"></i> <span x-text="editIndex !== null ? 'Edit Data Absen' : 'Pengisian Data Absen'"></span>
+        <i class="fa-solid fa-pen-to-square"></i> <span x-text="editIndex !== null ? 'Edit Data' : 'Pengisian Data Admin'"></span>
       </button>
 
       <button 
         @click="activeTab = 'history'" 
         :class="activeTab === 'history' ? 'border-emerald-500 text-emerald-400 bg-slate-800/50' : 'border-transparent text-slate-400 hover:text-slate-200'"
         class="px-4 py-2.5 font-semibold text-sm border-b-2 rounded-t-lg transition flex items-center gap-2">
-        <i class="fa-solid fa-clock-rotate-left"></i> Rekap / Riwayat Bulan Lalu
+        <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Bulan Lalu
       </button>
     </div>
 
-    <!-- ==================== TAB 1: DASHBOARD UTAMA ==================== -->
+    <!-- ==================== 1. TAMPILAN UTAMA (REKAP & STATISTIK) ==================== -->
     <div x-show="activeTab === 'dashboard'" class="space-y-6">
       
-      <!-- STATISTIK PERSENTASE PALING MENONJOL -->
-      <div class="bg-gradient-to-br from-emerald-950/70 via-slate-800 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-        <div class="absolute -right-10 -bottom-10 text-emerald-500/5 text-9xl font-black select-none pointer-events-none">
-          %
-        </div>
-        
+      <!-- KOTAK PERSENTASE PALING MENONJOL -->
+      <div class="bg-gradient-to-br from-emerald-950/80 via-slate-800 to-slate-900 border border-emerald-500/40 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
         <div class="text-center md:text-left md:flex md:items-center md:justify-between gap-6">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-900/50 px-3 py-1 rounded-full border border-emerald-700/50">
-              Tingkat Kehadiran Keseluruhan
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-700/50">
+              Hasil Rekapitulasi Kehadiran
             </span>
             <h2 class="text-2xl md:text-3xl font-extrabold mt-3 text-slate-100">
-              Persentase Kehadiran Anggota Aktif
+              Persentase Kehadiran Anggota
             </h2>
             <p class="text-slate-400 text-sm mt-1">
-              Dari Total Anggota Aktif: <span class="font-bold text-slate-200" x-text="totalAnggotaAktif"></span> Orang
+              Dari Total Anggota Aktif Terdaftar: <span class="font-bold text-slate-200" x-text="totalAnggotaAktif"></span> Orang
             </p>
           </div>
 
-          <!-- PERSENTASE BESAR -->
-          <div class="mt-6 md:mt-0 flex flex-col items-center justify-center bg-slate-900/80 border border-emerald-500/40 px-8 py-6 rounded-2xl shadow-inner min-w-[200px]">
+          <!-- TAMPILAN PERSENTASE BESAR -->
+          <div class="mt-6 md:mt-0 flex flex-col items-center justify-center bg-slate-900/90 border-2 border-emerald-400/50 px-8 py-5 rounded-2xl shadow-inner min-w-[220px]">
             <span class="text-5xl md:text-6xl font-black text-emerald-400 tracking-tight" x-text="persentaseHadir + '%'">
               0%
             </span>
-            <span class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">Hadir Aktif</span>
+            <span class="text-xs font-bold text-slate-300 mt-1 uppercase tracking-wider">Hadir Aktif</span>
           </div>
         </div>
 
-        <!-- STATS CARDS (H, I, A) -->
-        <div class="grid grid-cols-3 gap-3 md:gap-4 mt-8">
-          <div class="bg-slate-900/90 border border-emerald-500/20 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-400 font-semibold block uppercase">Hadir (H)</span>
+        <!-- JUMLAH TOTAL H, I, A -->
+        <div class="grid grid-cols-3 gap-3 md:gap-4 mt-6">
+          <div class="bg-slate-900/90 border border-emerald-500/30 p-4 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-bold block uppercase">Hadir (H)</span>
             <span class="text-2xl md:text-3xl font-extrabold text-emerald-400 mt-1 block" x-text="totalHadir">0</span>
           </div>
-          <div class="bg-slate-900/90 border border-yellow-500/20 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-400 font-semibold block uppercase">Ijin (I)</span>
+          <div class="bg-slate-900/90 border border-yellow-500/30 p-4 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-bold block uppercase">Ijin (I)</span>
             <span class="text-2xl md:text-3xl font-extrabold text-yellow-400 mt-1 block" x-text="totalIjin">0</span>
           </div>
-          <div class="bg-slate-900/90 border border-red-500/20 p-4 rounded-xl text-center">
-            <span class="text-xs text-slate-400 font-semibold block uppercase">Alpha (A)</span>
+          <div class="bg-slate-900/90 border border-red-500/30 p-4 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-bold block uppercase">Alpha (A)</span>
             <span class="text-2xl md:text-3xl font-extrabold text-red-400 mt-1 block" x-text="totalAlpha">0</span>
           </div>
         </div>
       </div>
 
-      <!-- DETAIL PER GRUP KELOMPOK -->
+      <!-- TABEL REKAP DETAIL PER GRUP -->
       <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-            <i class="fa-solid fa-users text-teal-400"></i> Detail Kehadiran Per Grup / Kelompok
-          </h3>
-        </div>
+        <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-users text-emerald-400"></i> Detail Rekapitulasi Per Grup Peserta
+        </h3>
 
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left text-slate-300">
-            <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 border-b border-slate-700">
+            <thead class="text-xs text-slate-400 uppercase bg-slate-900/90 border-b border-slate-700">
               <tr>
-                <th class="px-4 py-3">Jenis Pengajian</th>
-                <th class="px-4 py-3">Nama Grup / RT</th>
+                <th class="px-4 py-3">Pilihan Pengajian</th>
+                <th class="px-4 py-3">Nama Grup Peserta</th>
                 <th class="px-4 py-3 text-center text-emerald-400">H (Hadir)</th>
                 <th class="px-4 py-3 text-center text-yellow-400">I (Ijin)</th>
                 <th class="px-4 py-3 text-center text-red-400">A (Alpha)</th>
-                <th class="px-4 py-3 text-center">Total</th>
+                <th class="px-4 py-3 text-center">Total Peserta</th>
                 <th x-show="isAdmin" class="px-4 py-3 text-center">Aksi (Admin)</th>
               </tr>
             </thead>
@@ -150,17 +144,17 @@
               <template x-for="(item, index) in records" :key="index">
                 <tr class="hover:bg-slate-800/40 transition">
                   <td class="px-4 py-3 font-semibold text-emerald-300" x-text="item.jenisPengajian"></td>
-                  <td class="px-4 py-3 text-slate-200" x-text="item.namaGrup"></td>
+                  <td class="px-4 py-3 text-slate-100" x-text="item.namaGrup"></td>
                   <td class="px-4 py-3 text-center font-bold text-emerald-400" x-text="item.hadir"></td>
                   <td class="px-4 py-3 text-center font-bold text-yellow-400" x-text="item.ijin"></td>
                   <td class="px-4 py-3 text-center font-bold text-red-400" x-text="item.alpha"></td>
-                  <td class="px-4 py-3 text-center font-bold text-slate-100" x-text="Number(item.hadir) + Number(item.ijin) + Number(item.alpha)"></td>
+                  <td class="px-4 py-3 text-center font-bold text-slate-200" x-text="Number(item.hadir) + Number(item.ijin) + Number(item.alpha)"></td>
                   <td x-show="isAdmin" class="px-4 py-3 text-center">
                     <div class="flex items-center justify-center gap-2">
-                      <button @click="editRecord(index)" class="text-indigo-400 hover:text-indigo-300 p-1.5 rounded-lg bg-indigo-950/50 border border-indigo-800/50">
+                      <button @click="editRecord(index)" class="text-indigo-400 hover:text-indigo-300 p-1.5 rounded-lg bg-indigo-950/60 border border-indigo-800">
                         <i class="fa-solid fa-pen"></i>
                       </button>
-                      <button @click="deleteRecord(index)" class="text-red-400 hover:text-red-300 p-1.5 rounded-lg bg-red-950/50 border border-red-800/50">
+                      <button @click="deleteRecord(index)" class="text-red-400 hover:text-red-300 p-1.5 rounded-lg bg-red-950/60 border border-red-800">
                         <i class="fa-solid fa-trash"></i>
                       </button>
                     </div>
@@ -169,7 +163,7 @@
               </template>
               <tr x-show="records.length === 0">
                 <td :colspan="isAdmin ? 7 : 6" class="text-center py-6 text-slate-500">
-                  Belum ada data kehadiran terdaftar. <span x-show="isAdmin">Silakan isi di tab Pengisian Data.</span>
+                  Belum ada data rekap pengajian terdaftar.
                 </td>
               </tr>
             </tbody>
@@ -178,30 +172,31 @@
       </div>
     </div>
 
-    <!-- ==================== TAB 2: PENGISIAN DATA (KHUSUS ADMIN) ==================== -->
+    <!-- ==================== 2. TAMPILAN PENGISIAN DATA (KHUSUS ADMIN) ==================== -->
     <div x-show="activeTab === 'input' && isAdmin" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 max-w-2xl mx-auto shadow-xl">
       <h3 class="text-xl font-bold text-emerald-400 mb-6 flex items-center gap-2">
-        <i class="fa-solid fa-pen-to-square"></i> <span x-text="editIndex !== null ? 'Edit Data Kehadiran' : 'Input Data Kehadiran Baru'"></span>
+        <i class="fa-solid fa-pen-to-square"></i> <span x-text="editIndex !== null ? 'Edit Data Pengajian' : 'Form Pengisian Data Pengajian'"></span>
       </h3>
 
       <form @submit.prevent="saveRecord()" class="space-y-4">
-        <!-- Input Total Anggota Aktif Desa -->
+        
+        <!-- Input Total Anggota Aktif -->
         <div class="bg-slate-900/80 p-4 rounded-xl border border-emerald-500/30">
           <label class="block text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
-            Total Anggota Aktif Desa (Persentase Base)
+            Total Anggota Aktif Desa (Acuan Persentase %)
           </label>
           <input 
             type="number" 
             x-model="totalAnggotaAktif" 
             placeholder="Masukkan total anggota aktif..."
-            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm font-semibold"
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm font-bold"
             required
           >
         </div>
 
-        <!-- Choice Jenis Pengajian -->
+        <!-- Dropdown Pilihan Jenis Pengajian -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Jenis Pengajian</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Pilihan Jenis Pengajian</label>
           <select 
             x-model="formData.jenisSelect" 
             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
@@ -211,34 +206,34 @@
             <option value="Pengajian Umum Desa">Pengajian Umum Desa</option>
             <option value="Ibu Ibu Desa">Ibu Ibu Desa</option>
             <option value="Remaja Desa">Remaja Desa</option>
-            <option value="Lainnya">Lainnya (Input Khusus Admin)</option>
+            <option value="Lainnya">Lainnya (Diisi Khusus Admin)</option>
           </select>
         </div>
 
-        <!-- Input Khusus "Lainnya" -->
+        <!-- Custom Input Jika Pilih "Lainnya" -->
         <div x-show="formData.jenisSelect === 'Lainnya'">
-          <label class="block text-xs font-semibold text-emerald-400 mb-1">Nama Pengajian Kustom (Khusus Admin)</label>
+          <label class="block text-xs font-semibold text-emerald-400 mb-1">Tuliskan Nama Pengajian Khusus</label>
           <input 
             type="text" 
             x-model="formData.jenisCustom" 
-            placeholder="Tuliskan nama pengajian lainnya..."
+            placeholder="Masukkan nama pengajian..."
             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
           >
         </div>
 
-        <!-- Nama Grup / Peserta -->
+        <!-- Nama Grup Peserta Pengajian -->
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Grup / Kelompok Peserta</label>
           <input 
             type="text" 
             x-model="formData.namaGrup" 
-            placeholder="Misal: Kelompok RT 01, Remaja Blok A..." 
+            placeholder="Contoh: Grup RT 01, Kelompok Melati, Dll." 
             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
             required
           >
         </div>
 
-        <!-- Input H, I, A -->
+        <!-- Input Hadir (H), Ijin (I), Alpha (A) -->
         <div class="grid grid-cols-3 gap-3 pt-2">
           <div>
             <label class="block text-xs font-bold text-emerald-400 mb-1">H (Hadir)</label>
@@ -272,7 +267,7 @@
           </div>
         </div>
 
-        <!-- Tanggal Record -->
+        <!-- Tanggal Kegiatan -->
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Kegiatan</label>
           <input 
@@ -283,13 +278,13 @@
           >
         </div>
 
-        <!-- Submit Button -->
+        <!-- Tombol Aksi -->
         <div class="pt-4 flex gap-3">
           <button 
             type="submit" 
             class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2">
             <i class="fa-solid fa-floppy-disk"></i>
-            <span x-text="editIndex !== null ? 'Simpan Perubahan' : 'Tambah Data'"></span>
+            <span x-text="editIndex !== null ? 'Update Data' : 'Simpan Data'"></span>
           </button>
           <button 
             type="button" 
@@ -302,15 +297,16 @@
       </form>
     </div>
 
-    <!-- ==================== TAB 3: RIWAYAT / REKAP BULAN LALU ==================== -->
+    <!-- ==================== 3. RECORD / RIWAYAT BULAN SEBELUMNYA ==================== -->
     <div x-show="activeTab === 'history'" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
       <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-box-archive text-emerald-400"></i> Rekapitualasi Bulan Sebelumnya
+          <i class="fa-solid fa-box-archive text-emerald-400"></i> Rekapitulasi Bulan Sebelumnya
         </h3>
         
         <!-- Filter Bulan/Tahun -->
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center">
+          <span class="text-xs text-slate-400">Pilih Bulan:</span>
           <input 
             type="month" 
             x-model="filterMonth" 
@@ -321,11 +317,11 @@
 
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-slate-300">
-          <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 border-b border-slate-700">
+          <thead class="text-xs text-slate-400 uppercase bg-slate-900/90 border-b border-slate-700">
             <tr>
               <th class="px-4 py-3">Tanggal</th>
-              <th class="px-4 py-3">Jenis Pengajian</th>
-              <th class="px-4 py-3">Grup</th>
+              <th class="px-4 py-3">Pilihan Pengajian</th>
+              <th class="px-4 py-3">Grup Peserta</th>
               <th class="px-4 py-3 text-center text-emerald-400">H</th>
               <th class="px-4 py-3 text-center text-yellow-400">I</th>
               <th class="px-4 py-3 text-center text-red-400">A</th>
@@ -344,7 +340,7 @@
             </template>
             <tr x-show="filteredHistoryRecords.length === 0">
               <td colspan="6" class="text-center py-6 text-slate-500">
-                Tidak ada riwayat record data untuk periode bulan ini.
+                Tidak ada data rekap untuk bulan ini.
               </td>
             </tr>
           </tbody>
@@ -358,7 +354,7 @@
   <div x-show="showLoginModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50" style="display: none;">
     <div @click.away="showLoginModal = false" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
       <h3 class="text-xl font-bold text-slate-100 mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-lock text-emerald-400"></i> Login khusus Admin
+        <i class="fa-solid fa-lock text-emerald-400"></i> Login Admin
       </h3>
       <p class="text-xs text-slate-400 mb-4">Masukkan kata sandi admin untuk mengakses menu pengisian data, edit, dan hapus.</p>
       
@@ -383,7 +379,7 @@
     <p>&copy; Absen Desa Kaltara - Sistem Kehadiran Pengajian Desa</p>
   </footer>
 
-  <!-- SCRIPT KONTROL LOGIKA APP -->
+  <!-- SCRIPT KONTROL LOGIKA APP (Alpine.js) -->
   <script>
     function absenApp() {
       return {
@@ -392,10 +388,9 @@
         showLoginModal: false,
         adminPassword: '',
         editIndex: null,
-        totalAnggotaAktif: 100, // Default base anggota aktif
-        filterMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
+        totalAnggotaAktif: 100, // Total default base anggota aktif
+        filterMonth: new Date().toISOString().slice(0, 7), // Format YYYY-MM
         
-        // Form Data Input
         formData: {
           jenisSelect: '',
           jenisCustom: '',
@@ -406,7 +401,7 @@
           tanggal: new Date().toISOString().slice(0, 10)
         },
 
-        // Sample Data Awal (Disimpan di LocalStorage)
+        // Data awal yang tersimpan otomatis di LocalStorage
         records: JSON.parse(localStorage.getItem('absen_kaltara_data')) || [
           { jenisPengajian: 'Pengajian Umum Desa', namaGrup: 'Grup RT 01', hadir: 25, ijin: 2, alpha: 1, tanggal: new Date().toISOString().slice(0, 10) },
           { jenisPengajian: 'Ibu Ibu Desa', namaGrup: 'Keluarga Sakinah', hadir: 30, ijin: 5, alpha: 0, tanggal: new Date().toISOString().slice(0, 10) },
@@ -414,20 +409,17 @@
         ],
 
         init() {
-          // Sync totalAnggotaAktif jika ada di storage
           const savedTotal = localStorage.getItem('absen_kaltara_total');
           if(savedTotal) this.totalAnggotaAktif = Number(savedTotal);
           this.$watch('totalAnggotaAktif', val => localStorage.setItem('absen_kaltara_total', val));
           this.$watch('records', val => localStorage.setItem('absen_kaltara_data', JSON.stringify(val)));
         },
 
-        // Tanggal Hari Ini Formatted
         get currentDateFormatted() {
           const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
           return new Date().toLocaleDateString('id-ID', options);
         },
 
-        // Perhitungan Total
         get totalHadir() {
           return this.records.reduce((sum, item) => sum + Number(item.hadir), 0);
         },
@@ -443,13 +435,11 @@
           return pct.toFixed(1);
         },
 
-        // Filter Record Berdasarkan Bulan
         get filteredHistoryRecords() {
           if (!this.filterMonth) return this.records;
           return this.records.filter(r => r.tanggal.startsWith(this.filterMonth));
         },
 
-        // Simpan / Update Record
         saveRecord() {
           const jenisFinal = this.formData.jenisSelect === 'Lainnya' 
             ? this.formData.jenisCustom 
@@ -475,7 +465,6 @@
           this.activeTab = 'dashboard';
         },
 
-        // Edit Data
         editRecord(index) {
           const item = this.records[index];
           this.editIndex = index;
@@ -498,7 +487,6 @@
           this.activeTab = 'input';
         },
 
-        // Hapus Data
         deleteRecord(index) {
           if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
             this.records.splice(index, 1);
@@ -518,12 +506,10 @@
           };
         },
 
-        // Login Admin
         openLoginModal() {
           this.showLoginModal = true;
         },
         loginAdmin() {
-          // Kata sandi admin sederhana
           if (this.adminPassword === 'admin123') {
             this.isAdmin = true;
             this.showLoginModal = false;
