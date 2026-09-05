@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Absensi Pengajian Per Event</title>
-    <!-- Tailwind CSS CDN untuk styling modern & cepat -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
@@ -22,6 +22,30 @@
         <div class="text-center border-b pb-4 mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-emerald-700">Sistem Absensi Pengajian</h1>
             <p class="text-sm text-slate-500 mt-1">Rekapitulasi Kehadiran Kelompok Per Event / Acara</p>
+        </div>
+
+        <!-- Dashboard Ringkasan Utama (Besar & Menonjol) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Card Total Anggota -->
+            <div class="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
+                <span class="text-xs uppercase tracking-wider font-semibold opacity-80">Total Target Anggota</span>
+                <span class="text-4xl md:text-5xl font-extrabold mt-1">1030</span>
+                <span class="text-xs opacity-75 mt-1">Jamaah Terdaftar</span>
+            </div>
+
+            <!-- Card Total Hadir -->
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
+                <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Total Hadir Event Ini</span>
+                <span id="displayTotalHadir" class="text-4xl md:text-5xl font-extrabold mt-1">0</span>
+                <span class="text-xs opacity-80 mt-1">Jamaah Hadir</span>
+            </div>
+
+            <!-- Card Persentase Kehadiran -->
+            <div class="bg-gradient-to-br from-teal-600 to-cyan-700 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center border-2 border-teal-400">
+                <span class="text-xs uppercase tracking-wider font-semibold opacity-90">Persentase Kehadiran</span>
+                <span id="displayPersentase" class="text-4xl md:text-5xl font-extrabold mt-1">0%</span>
+                <span class="text-xs opacity-80 mt-1">dari 1030 Anggota</span>
+            </div>
         </div>
 
         <!-- Form Event Header -->
@@ -103,6 +127,9 @@
     </div>
 
     <script>
+        // Target Jumlah Anggota Keseluruhan
+        const TOTAL_ANGGOTA = 1030;
+
         // 8 Kelompok Tetap
         const daftarKelompok = [
             "Kel. CEPOGO",
@@ -153,7 +180,7 @@
             document.getElementById('activeMetaBadge').innerText = `Tanggal: ${tgl} | Lokasi: ${lok}`;
         }
 
-        // Kalkulasi Otomatis
+        // Kalkulasi Otomatis & Persentase Kehadiran
         function hitungTotal() {
             const rows = document.querySelectorAll('#absensiBody tr');
             let grandHadir = 0, grandIzin = 0, grandAlpha = 0, grandTotal = 0;
@@ -172,10 +199,18 @@
                 grandTotal += totalBaris;
             });
 
+            // Update Tabel Footer
             document.getElementById('totalHadir').innerText = grandHadir;
             document.getElementById('totalIzin').innerText = grandIzin;
             document.getElementById('totalAlpha').innerText = grandAlpha;
             document.getElementById('totalSemua').innerText = grandTotal;
+
+            // Update Dashboard Utama (Besar & Menonjol)
+            document.getElementById('displayTotalHadir').innerText = grandHadir;
+            
+            // Hitung Persentase Kehadiran terhadap Total 1030 Anggota
+            const persentase = ((grandHadir / TOTAL_ANGGOTA) * 100).toFixed(1);
+            document.getElementById('displayPersentase').innerText = persentase + '%';
         }
 
         // Simpan ke LocalStorage
@@ -183,6 +218,8 @@
             const jenisEvent = document.getElementById('jenisEvent').value;
             const tanggal = document.getElementById('tanggalEvent').value;
             const lokasi = document.getElementById('lokasiEvent').value;
+            const totalHadir = document.getElementById('totalHadir').innerText;
+            const persentase = document.getElementById('displayPersentase').innerText;
 
             const rekap = [];
             document.querySelectorAll('#absensiBody tr').forEach((row, index) => {
@@ -199,7 +236,8 @@
                 event: jenisEvent,
                 tanggal: tanggal,
                 lokasi: lokasi,
-                totalHadir: document.getElementById('totalHadir').innerText,
+                totalHadir: totalHadir,
+                persentase: persentase,
                 detail: rekap
             };
 
@@ -207,7 +245,7 @@
             history.unshift(dataSubmit);
             localStorage.setItem('absensi_pengajian', JSON.stringify(history));
 
-            alert(`Absensi untuk '${jenisEvent}' berhasil disimpan!`);
+            alert(`Absensi '${jenisEvent}' berhasil disimpan! Kehadiran: ${persentase}`);
             tampilkanRiwayat();
         }
 
@@ -227,7 +265,10 @@
                         <span class="font-bold text-emerald-700">${item.event}</span> (${item.tanggal}) 
                         <span class="text-slate-500">- ${item.lokasi || 'Tanpa Lokasi'}</span>
                     </div>
-                    <span class="font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs">Total Hadir: ${item.totalHadir}</span>
+                    <div class="space-x-1">
+                        <span class="font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs">Hadir: ${item.totalHadir}</span>
+                        <span class="font-semibold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded text-xs">${item.persentase || '0%'}</span>
+                    </div>
                 </div>
             `).join('');
         }
