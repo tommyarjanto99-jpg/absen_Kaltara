@@ -6,6 +6,8 @@
     <title>ABSENSI KALTARA</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js CDN untuk Ekspor PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @media print {
             .no-print { display: none !important; }
@@ -72,7 +74,7 @@
             </div>
 
             <!-- Tabel Tampilan Rekap Data Sesi Siang & Malam -->
-            <div class="border rounded-xl p-4 bg-white shadow-sm">
+            <div id="rekapAreaArea" class="border rounded-xl p-4 bg-white shadow-sm">
                 <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-4 gap-2">
                     <h3 id="viewEventTitle" class="font-bold text-emerald-800 text-lg">Pengajian Umum Desa</h3>
                     <span id="viewEventMeta" class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-medium">Tanggal: - | Lokasi: -</span>
@@ -120,9 +122,13 @@
                     </table>
                 </div>
 
-                <div class="mt-4 text-right no-print">
-                    <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition">
-                        🖨️ Cetak / Simpan PDF
+                <!-- Tombol Cetak dan Simpan PDF Terpisah -->
+                <div class="mt-4 flex justify-end gap-2 no-print">
+                    <button onclick="cetakRekap()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
+                        🖨️ Cetak Rekap
+                    </button>
+                    <button onclick="simpanKePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
+                        📄 Simpan PDF
                     </button>
                 </div>
             </div>
@@ -306,7 +312,6 @@
                 const mIzin = parseInt(row.querySelector('.input-m-izin').value) || 0;
                 const mAlpha = parseInt(row.querySelector('.input-m-alpha').value) || 0;
 
-                // PERBAIKAN LOGIKA: Rekap Gabungan adalah JUMLAH (Sesi Siang + Sesi Malam)
                 const gabHadir = sHadir + mHadir;
                 const gabIzin = sIzin + mIzin;
                 const gabTotal = gabHadir + gabIzin;
@@ -440,6 +445,29 @@
         function resetFilter() {
             document.getElementById('filterBulan').value = '';
             loadDashboardData();
+        }
+
+        // Fungsi Cetak
+        function cetakRekap() {
+            window.print();
+        }
+
+        // Fungsi Simpan PDF
+        function simpanKePDF() {
+            const element = document.getElementById('rekapAreaArea');
+            const titleEvent = document.getElementById('viewEventTitle').innerText || 'Rekap_Absensi';
+            const metaEvent = document.getElementById('viewEventMeta').innerText;
+            
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     `${titleEvent.replace(/\s+/g, '_')}_Kaltara.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+
+            // Mengunduh PDF secara langsung
+            html2pdf().set(opt).from(element).save();
         }
 
         loadDashboardData();
