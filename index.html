@@ -147,7 +147,7 @@
                 <div class="border-b pb-3 flex flex-wrap justify-between items-center gap-2">
                     <div>
                         <h2 class="text-xl font-bold text-emerald-800">🎙️ Jadwal Pengisi Pengajian</h2>
-                        <p class="text-xs text-slate-500">Kelola dan lihat susunan pemateri pengajian.</p>
+                        <p class="text-xs text-slate-500">Klik pada sesi rekap di bawah untuk melihat rincian lengkap & menyimpan ke PDF.</p>
                     </div>
                 </div>
 
@@ -198,19 +198,18 @@
 
                 <!-- Tampilan Daftar Pemateri -->
                 <div id="areaCetakPemateri" class="space-y-4 p-2 bg-white rounded-lg">
-                    <h3 class="font-bold text-slate-800 text-md border-b pb-2">📋 Rekap Pengisi Pengajian Terdaftar</h3>
+                    <h3 class="font-bold text-slate-800 text-md border-b pb-2">📋 Rekap Pengisi Pengajian Terdaftar (Klik untuk melihat detail)</h3>
                     <div id="containerDaftarPemateri" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Data Pemateri di-render via JS -->
                     </div>
                 </div>
 
-                <!-- Tombol Cetak & PDF Pemateri -->
                 <div class="mt-4 flex justify-end gap-2 no-print">
                     <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
-                        🖨️ Cetak Jadwal
+                        🖨️ Cetak Semua
                     </button>
                     <button onclick="simpanPemateriKePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
-                        📄 Simpan PDF Jadwal
+                        📄 Simpan PDF Semua
                     </button>
                 </div>
             </div>
@@ -292,9 +291,67 @@
 
     </div>
 
+    <!-- ==================== MODAL VIEWER SESI PEMATERI ==================== -->
+    <div id="modalPemateri" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-8 space-y-6 relative border border-emerald-100">
+            <button onclick="tutupModalPemateri()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl font-bold p-1 rounded-full hover:bg-slate-100 transition">✕</button>
+            
+            <div id="areaCetakSinglePemateri" class="space-y-6 p-4 border rounded-xl bg-slate-50">
+                <div class="border-b-2 border-emerald-600 pb-3 text-center">
+                    <h2 class="text-2xl font-extrabold text-emerald-800 tracking-wide uppercase">JADWAL PENGISI PENGAJIAN</h2>
+                    <p class="text-xs text-slate-500 font-semibold mt-1">ORGANISASI PENGAJIAN KALTARA</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                    <div>
+                        <span class="text-slate-500 block">Kategori Sesi:</span>
+                        <strong id="modalKategori" class="text-emerald-900 text-sm"></strong>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-500 block">Tanggal Pelaksanaan:</span>
+                        <strong id="modalTanggal" class="text-emerald-900 text-sm"></strong>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider border-b pb-1">Susunan Pemateri</h4>
+                    
+                    <div class="grid grid-cols-1 gap-2 text-sm">
+                        <div class="flex justify-between items-center p-3 bg-white border rounded-lg shadow-sm">
+                            <span class="font-semibold text-slate-600">1. Pembukaan</span>
+                            <span id="modalPembukaan" class="font-bold text-emerald-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-white border rounded-lg shadow-sm">
+                            <span class="font-semibold text-slate-600">2. Al-Quran</span>
+                            <span id="modalQuran" class="font-bold text-emerald-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-white border rounded-lg shadow-sm">
+                            <span class="font-semibold text-slate-600">3. Al-Hadist</span>
+                            <span id="modalHadist" class="font-bold text-emerald-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-white border rounded-lg shadow-sm">
+                            <span class="font-semibold text-slate-600">4. Penutup / Doa</span>
+                            <span id="modalPenutup" class="font-bold text-emerald-800"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="tutupModalPemateri()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2.5 px-5 rounded-lg transition">
+                    Tutup
+                </button>
+                <button onclick="simpanSinglePemateriKePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-5 rounded-lg transition flex items-center gap-2">
+                    📄 Download PDF Sesi Ini
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const TOTAL_ANGGOTA = 1030;
         const ADMIN_PIN = "1234";
+        let activePemateriItem = null;
 
         const daftarKelompok = [
             "Kel. CEPOGO",
@@ -387,10 +444,10 @@
             }
 
             container.innerHTML = listPemateri.map((item) => `
-                <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 hover:bg-emerald-50/30 transition space-y-2 relative">
-                    <button onclick="hapusPemateri(${item.id})" class="absolute top-2 right-2 text-xs text-red-500 hover:text-red-700 font-bold no-print" title="Hapus">✕</button>
-                    <div class="border-b pb-1">
-                        <span class="font-bold text-emerald-800 text-sm">${item.kategori}</span>
+                <div onclick="bukaModalPemateri(${item.id})" class="border border-slate-200 rounded-lg p-4 bg-slate-50 hover:bg-emerald-50/50 hover:border-emerald-300 transition space-y-2 relative cursor-pointer group shadow-sm">
+                    <button onclick="event.stopPropagation(); hapusPemateri(${item.id})" class="absolute top-2 right-2 text-xs text-slate-400 hover:text-red-600 font-bold p-1 no-print" title="Hapus">✕</button>
+                    <div class="border-b pb-1 pr-6">
+                        <span class="font-bold text-emerald-800 text-sm group-hover:text-emerald-900">${item.kategori}</span>
                         <div class="text-[11px] text-slate-500">📅 Tanggal: ${item.tanggal}</div>
                     </div>
                     <ul class="text-xs space-y-1 text-slate-700">
@@ -399,8 +456,48 @@
                         <li><strong>3. Al-Hadist:</strong> ${item.hadist}</li>
                         <li><strong>4. Penutup:</strong> ${item.penutup}</li>
                     </ul>
+                    <div class="text-[10px] text-emerald-600 font-semibold text-right pt-1 opacity-0 group-hover:opacity-100 transition">🔍 Klik untuk Detail / Download PDF →</div>
                 </div>
             `).join('');
+        }
+
+        function bukaModalPemateri(id) {
+            let listPemateri = JSON.parse(localStorage.getItem('pemateri_kaltara')) || [];
+            const item = listPemateri.find(p => p.id === id);
+
+            if (item) {
+                activePemateriItem = item;
+                document.getElementById('modalKategori').innerText = item.kategori;
+                document.getElementById('modalTanggal').innerText = item.tanggal;
+                document.getElementById('modalPembukaan').innerText = item.pembukaan;
+                document.getElementById('modalQuran').innerText = item.quran;
+                document.getElementById('modalHadist').innerText = item.hadist;
+                document.getElementById('modalPenutup').innerText = item.penutup;
+
+                document.getElementById('modalPemateri').classList.remove('hidden');
+            }
+        }
+
+        function tutupModalPemateri() {
+            document.getElementById('modalPemateri').classList.add('hidden');
+            activePemateriItem = null;
+        }
+
+        function simpanSinglePemateriKePDF() {
+            if (!activePemateriItem) return;
+
+            const element = document.getElementById('areaCetakSinglePemateri');
+            const filename = `Pengisi_Pengajian_${activePemateriItem.kategori.replace(/\s+/g, '_')}_${activePemateriItem.tanggal}.pdf`;
+            
+            const opt = {
+                margin:       [0.4, 0.4, 0.4, 0.4],
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
         }
 
         function hapusPemateri(id) {
@@ -412,7 +509,6 @@
             }
         }
 
-        // Fitur Baru: Simpan PDF Khusus Pemateri
         function simpanPemateriKePDF() {
             const element = document.getElementById('areaCetakPemateri');
             
