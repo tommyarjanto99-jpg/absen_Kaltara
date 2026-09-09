@@ -140,7 +140,7 @@
 
         </div>
 
-        <!-- ==================== TAB 2: PENGISI PENGAJIAN (FITUR BARU) ==================== -->
+        <!-- ==================== TAB 2: PENGISI PENGAJIAN ==================== -->
         <div id="tabPemateri" class="hidden space-y-6">
             
             <div class="bg-white border rounded-xl p-4 md:p-6 shadow-sm space-y-6">
@@ -151,7 +151,7 @@
                     </div>
                 </div>
 
-                <!-- Form Input Pemateri (Admin & Umum) -->
+                <!-- Form Input Pemateri -->
                 <form id="formPemateri" onsubmit="event.preventDefault(); simpanPemateri();" class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4 no-print">
                     <h3 class="font-bold text-slate-700 text-sm">✍️ Input / Update Pemateri</h3>
                     
@@ -197,16 +197,20 @@
                 </form>
 
                 <!-- Tampilan Daftar Pemateri -->
-                <div id="areaCetakPemateri" class="space-y-4">
-                    <h3 class="font-bold text-slate-800 text-md">📋 Rekap Pengisi Pengajian Terdaftar</h3>
+                <div id="areaCetakPemateri" class="space-y-4 p-2 bg-white rounded-lg">
+                    <h3 class="font-bold text-slate-800 text-md border-b pb-2">📋 Rekap Pengisi Pengajian Terdaftar</h3>
                     <div id="containerDaftarPemateri" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Data Pemateri di-render via JS -->
                     </div>
                 </div>
 
+                <!-- Tombol Cetak & PDF Pemateri -->
                 <div class="mt-4 flex justify-end gap-2 no-print">
-                    <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition">
+                    <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
                         🖨️ Cetak Jadwal
+                    </button>
+                    <button onclick="simpanPemateriKePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
+                        📄 Simpan PDF Jadwal
                     </button>
                 </div>
             </div>
@@ -315,7 +319,6 @@
             const tabPemateri = document.getElementById('tabPemateri');
             const tabInp = document.getElementById('tabInput');
 
-            // Reset Styles
             const activeClass = "flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition";
             const inactiveClass = "flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition";
 
@@ -366,7 +369,6 @@
 
             alert(`Data Pemateri untuk '${kategori}' berhasil disimpan!`);
             
-            // Reset Input
             document.getElementById('pemateriPembukaan').value = '';
             document.getElementById('pemateriQuran').value = '';
             document.getElementById('pemateriHadist').value = '';
@@ -384,12 +386,12 @@
                 return;
             }
 
-            container.innerHTML = listPemateri.map((item, index) => `
+            container.innerHTML = listPemateri.map((item) => `
                 <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 hover:bg-emerald-50/30 transition space-y-2 relative">
                     <button onclick="hapusPemateri(${item.id})" class="absolute top-2 right-2 text-xs text-red-500 hover:text-red-700 font-bold no-print" title="Hapus">✕</button>
                     <div class="border-b pb-1">
                         <span class="font-bold text-emerald-800 text-sm">${item.kategori}</span>
-                        <div class="text-[11px] text-slate-500">📅 ${item.tanggal}</div>
+                        <div class="text-[11px] text-slate-500">📅 Tanggal: ${item.tanggal}</div>
                     </div>
                     <ul class="text-xs space-y-1 text-slate-700">
                         <li><strong>1. Pembukaan:</strong> ${item.pembukaan}</li>
@@ -408,6 +410,21 @@
                 localStorage.setItem('pemateri_kaltara', JSON.stringify(listPemateri));
                 loadDataPemateri();
             }
+        }
+
+        // Fitur Baru: Simpan PDF Khusus Pemateri
+        function simpanPemateriKePDF() {
+            const element = document.getElementById('areaCetakPemateri');
+            
+            const opt = {
+                margin:       [0.4, 0.4, 0.4, 0.4],
+                filename:     `Jadwal_Pengisi_Pengajian_Kaltara.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
         }
 
         // ================= JS ADMIN & ABSENSI =================
