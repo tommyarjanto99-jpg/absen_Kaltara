@@ -28,18 +28,20 @@
 
         <!-- Tab Navigasi Utama -->
         <div class="flex border-b border-slate-200 mb-6 no-print">
-            <button id="btnTabDashboard" onclick="switchTab('dashboard')" class="flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition">
+            <button id="btnTabDashboard" onclick="switchTab('dashboard')" class="flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition">
                 📊 Dashboard & Rekap
             </button>
-            <button id="btnTabInput" onclick="switchTab('input')" class="flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition">
-                🔒 Input Absensi (Khusus Admin)
+            <button id="btnTabPemateri" onclick="switchTab('pemateri')" class="flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition">
+                🎙️ Pengisi Pengajian
+            </button>
+            <button id="btnTabInput" onclick="switchTab('input')" class="flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition">
+                🔒 Input Absensi (Admin)
             </button>
         </div>
 
-        <!-- ==================== TAB 1: DASHBOARD & REKAP (UMUM) ==================== -->
+        <!-- ==================== TAB 1: DASHBOARD & REKAP ==================== -->
         <div id="tabDashboard" class="space-y-6">
             
-            <!-- Dashboard Ringkasan Utama -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-5 rounded-xl shadow-md text-center flex flex-col justify-center items-center">
                     <span class="text-xs uppercase tracking-wider font-semibold opacity-80">Total Target Anggota</span>
@@ -60,7 +62,6 @@
                 </div>
             </div>
 
-            <!-- Filter Bulan / Tahun -->
             <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 no-print">
                 <div class="font-bold text-slate-700 text-sm">
                     📁 Arsip Data Bulan Sebelumnya
@@ -73,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- Tabel Tampilan Rekap Data Sesi Siang & Malam -->
             <div id="rekapAreaArea" class="border rounded-xl p-4 bg-white shadow-sm">
                 <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-4 gap-2">
                     <h3 id="viewEventTitle" class="font-bold text-emerald-800 text-lg">Pengajian Umum Desa</h3>
@@ -103,7 +103,6 @@
                             </tr>
                         </thead>
                         <tbody id="dashTableBody" class="divide-y divide-slate-200">
-                            <!-- Data di-render lewat JS -->
                         </tbody>
                         <tfoot>
                             <tr class="bg-emerald-100 font-bold text-emerald-900 border-t-2 border-emerald-400">
@@ -122,7 +121,6 @@
                     </table>
                 </div>
 
-                <!-- Tombol Cetak dan Simpan PDF Terpisah -->
                 <div class="mt-4 flex justify-end gap-2 no-print">
                     <button onclick="cetakRekap()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition flex items-center gap-1">
                         🖨️ Cetak Rekap
@@ -133,7 +131,6 @@
                 </div>
             </div>
 
-            <!-- Riwayat Event -->
             <div class="border rounded-xl p-4 bg-white shadow-sm no-print">
                 <h3 class="font-bold text-slate-700 text-md mb-3">Daftar Riwayat Pengajian</h3>
                 <div id="historyList" class="space-y-2 text-xs">
@@ -143,7 +140,80 @@
 
         </div>
 
-        <!-- ==================== TAB 2: INPUT ABSENSI (ADMIN) ==================== -->
+        <!-- ==================== TAB 2: PENGISI PENGAJIAN (FITUR BARU) ==================== -->
+        <div id="tabPemateri" class="hidden space-y-6">
+            
+            <div class="bg-white border rounded-xl p-4 md:p-6 shadow-sm space-y-6">
+                <div class="border-b pb-3 flex flex-wrap justify-between items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-emerald-800">🎙️ Jadwal Pengisi Pengajian</h2>
+                        <p class="text-xs text-slate-500">Kelola dan lihat susunan pemateri pengajian.</p>
+                    </div>
+                </div>
+
+                <!-- Form Input Pemateri (Admin & Umum) -->
+                <form id="formPemateri" onsubmit="event.preventDefault(); simpanPemateri();" class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4 no-print">
+                    <h3 class="font-bold text-slate-700 text-sm">✍️ Input / Update Pemateri</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Pengajian</label>
+                            <select id="pemateriKategori" class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <option value="Pengajian Umum Desa Sesi Pagi">Pengajian Umum Desa Sesi Pagi</option>
+                                <option value="Pengajian Umum Desa Sesi Malam">Pengajian Umum Desa Sesi Malam</option>
+                                <option value="Ibu Ibu Desa">Ibu Ibu Desa</option>
+                                <option value="Remaja Desa">Remaja Desa</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Tanggung Jawab / Event</label>
+                            <input type="date" id="pemateriTanggal" class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">1. Pembukaan</label>
+                            <input type="text" id="pemateriPembukaan" placeholder="Nama pengisi pembukaan..." class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">2. Al-Quran</label>
+                            <input type="text" id="pemateriQuran" placeholder="Nama pengisi Al-Quran..." class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">3. Al-Hadist</label>
+                            <input type="text" id="pemateriHadist" placeholder="Nama pengisi Al-Hadist..." class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">4. Penutup</label>
+                            <input type="text" id="pemateriPenutup" placeholder="Nama pengisi penutup/doa..." class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-md transition text-sm">
+                        💾 Simpan Data Pemateri
+                    </button>
+                </form>
+
+                <!-- Tampilan Daftar Pemateri -->
+                <div id="areaCetakPemateri" class="space-y-4">
+                    <h3 class="font-bold text-slate-800 text-md">📋 Rekap Pengisi Pengajian Terdaftar</h3>
+                    <div id="containerDaftarPemateri" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Data Pemateri di-render via JS -->
+                    </div>
+                </div>
+
+                <div class="mt-4 flex justify-end gap-2 no-print">
+                    <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded-md transition">
+                        🖨️ Cetak Jadwal
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== TAB 3: INPUT ABSENSI (ADMIN) ==================== -->
         <div id="tabInput" class="hidden space-y-6">
 
             <div id="adminAuthBox" class="bg-slate-50 border border-slate-200 p-6 rounded-xl max-w-md mx-auto text-center space-y-4">
@@ -183,7 +253,6 @@
                     </div>
                 </div>
 
-                <!-- Input Sesi Siang dan Malam -->
                 <form id="attendanceForm" onsubmit="event.preventDefault();">
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs md:text-sm text-center border-collapse border border-slate-200">
@@ -204,7 +273,6 @@
                                 </tr>
                             </thead>
                             <tbody id="inputTableBody" class="divide-y divide-slate-200">
-                                <!-- Dynamic Input Row -->
                             </tbody>
                         </table>
                     </div>
@@ -236,27 +304,113 @@
         ];
 
         document.getElementById('tanggalEvent').valueAsDate = new Date();
+        document.getElementById('pemateriTanggal').valueAsDate = new Date();
 
         function switchTab(tab) {
             const btnDash = document.getElementById('btnTabDashboard');
+            const btnPemateri = document.getElementById('btnTabPemateri');
             const btnInput = document.getElementById('btnTabInput');
+            
             const tabDash = document.getElementById('tabDashboard');
+            const tabPemateri = document.getElementById('tabPemateri');
             const tabInp = document.getElementById('tabInput');
+
+            // Reset Styles
+            const activeClass = "flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition";
+            const inactiveClass = "flex-1 py-3 px-4 text-center font-bold text-xs md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition";
+
+            tabDash.classList.add('hidden');
+            tabPemateri.classList.add('hidden');
+            tabInp.classList.add('hidden');
+
+            btnDash.className = inactiveClass;
+            btnPemateri.className = inactiveClass;
+            btnInput.className = inactiveClass;
 
             if (tab === 'dashboard') {
                 tabDash.classList.remove('hidden');
-                tabInp.classList.add('hidden');
-                btnDash.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition";
-                btnInput.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition";
+                btnDash.className = activeClass;
                 loadDashboardData();
+            } else if (tab === 'pemateri') {
+                tabPemateri.classList.remove('hidden');
+                btnPemateri.className = activeClass;
+                loadDataPemateri();
             } else {
-                tabDash.classList.add('hidden');
                 tabInp.classList.remove('hidden');
-                btnInput.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50 focus:outline-none transition";
-                btnDash.className = "flex-1 py-3 px-4 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-slate-500 hover:text-emerald-600 focus:outline-none transition";
+                btnInput.className = activeClass;
             }
         }
 
+        // ================= JS PEMATERI =================
+        function simpanPemateri() {
+            const kategori = document.getElementById('pemateriKategori').value;
+            const tanggal = document.getElementById('pemateriTanggal').value;
+            const pembukaan = document.getElementById('pemateriPembukaan').value || '-';
+            const quran = document.getElementById('pemateriQuran').value || '-';
+            const hadist = document.getElementById('pemateriHadist').value || '-';
+            const penutup = document.getElementById('pemateriPenutup').value || '-';
+
+            const dataPemateriBaru = {
+                id: Date.now(),
+                kategori,
+                tanggal,
+                pembukaan,
+                quran,
+                hadist,
+                penutup
+            };
+
+            let listPemateri = JSON.parse(localStorage.getItem('pemateri_kaltara')) || [];
+            listPemateri.unshift(dataPemateriBaru);
+            localStorage.setItem('pemateri_kaltara', JSON.stringify(listPemateri));
+
+            alert(`Data Pemateri untuk '${kategori}' berhasil disimpan!`);
+            
+            // Reset Input
+            document.getElementById('pemateriPembukaan').value = '';
+            document.getElementById('pemateriQuran').value = '';
+            document.getElementById('pemateriHadist').value = '';
+            document.getElementById('pemateriPenutup').value = '';
+
+            loadDataPemateri();
+        }
+
+        function loadDataPemateri() {
+            let listPemateri = JSON.parse(localStorage.getItem('pemateri_kaltara')) || [];
+            const container = document.getElementById('containerDaftarPemateri');
+
+            if (listPemateri.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic col-span-2">Belum ada data pengisi pengajian. Silakan isi form di atas.</p>';
+                return;
+            }
+
+            container.innerHTML = listPemateri.map((item, index) => `
+                <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 hover:bg-emerald-50/30 transition space-y-2 relative">
+                    <button onclick="hapusPemateri(${item.id})" class="absolute top-2 right-2 text-xs text-red-500 hover:text-red-700 font-bold no-print" title="Hapus">✕</button>
+                    <div class="border-b pb-1">
+                        <span class="font-bold text-emerald-800 text-sm">${item.kategori}</span>
+                        <div class="text-[11px] text-slate-500">📅 ${item.tanggal}</div>
+                    </div>
+                    <ul class="text-xs space-y-1 text-slate-700">
+                        <li><strong>1. Pembukaan:</strong> ${item.pembukaan}</li>
+                        <li><strong>2. Al-Quran:</strong> ${item.quran}</li>
+                        <li><strong>3. Al-Hadist:</strong> ${item.hadist}</li>
+                        <li><strong>4. Penutup:</strong> ${item.penutup}</li>
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        function hapusPemateri(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus data pemateri ini?")) {
+                let listPemateri = JSON.parse(localStorage.getItem('pemateri_kaltara')) || [];
+                listPemateri = listPemateri.filter(item => item.id !== id);
+                localStorage.setItem('pemateri_kaltara', JSON.stringify(listPemateri));
+                loadDataPemateri();
+            }
+        }
+
+        // ================= JS ADMIN & ABSENSI =================
         function verifyAdmin() {
             const pin = document.getElementById('inputPin').value;
             if (pin === ADMIN_PIN) {
@@ -447,16 +601,13 @@
             loadDashboardData();
         }
 
-        // Fungsi Cetak
         function cetakRekap() {
             window.print();
         }
 
-        // Fungsi Simpan PDF
         function simpanKePDF() {
             const element = document.getElementById('rekapAreaArea');
             const titleEvent = document.getElementById('viewEventTitle').innerText || 'Rekap_Absensi';
-            const metaEvent = document.getElementById('viewEventMeta').innerText;
             
             const opt = {
                 margin:       [0.3, 0.3, 0.3, 0.3],
@@ -466,7 +617,6 @@
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
 
-            // Mengunduh PDF secara langsung
             html2pdf().set(opt).from(element).save();
         }
 
